@@ -54,6 +54,11 @@ namespace DiscordBot.Main
                 .Parameter("text", ParameterType.Unparsed)
                 .Do(async (e) => await cencored(e));
 
+            commands.CreateCommand("clean")
+                .Description("Remove messages of Biribiri")
+                .Parameter("amount", ParameterType.Unparsed)
+                .Do(async (e) => await clean(e));
+
             commands.CreateCommand("compliment")
                 .Description("Give someone a compliment")
                 .Parameter("user", ParameterType.Unparsed)
@@ -71,6 +76,7 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("lenny")
                 .Description("Say ( ͡° ͜ʖ ͡°)")
+                .Parameter("words", ParameterType.Unparsed)
                 .Do(async (e) => await lenny(e));
 
             commands.CreateCommand("money")
@@ -102,8 +108,8 @@ namespace DiscordBot.Main
         {
             Console.WriteLine("Biribiri command used by " + e.User);
             await e.Message.Delete();
-            var str = Responses.biribiri[random.Next(Responses.biribiri.Length)];
-            str = "biribiri/1.jpg";
+            var i = random.Next(Responses.biribiri.Length);
+            var str = Responses.biribiri[i];
             await e.Channel.SendFile(str);
         }
         private async Task bye(Discord.Commands.CommandEventArgs e)
@@ -129,7 +135,9 @@ namespace DiscordBot.Main
         {
             Console.WriteLine("Cat command used by " + e.User);
             await e.Message.Delete();
-            await e.Channel.SendMessage("http://random.cat/");
+            var i = random.Next(Responses.cat.Length);
+            var str = Responses.cat[i];
+            await e.Channel.SendFile(str);
         }
 
         private async Task cencored(Discord.Commands.CommandEventArgs e)
@@ -137,6 +145,31 @@ namespace DiscordBot.Main
             Console.WriteLine("Censor command used by " + e.User);
             await e.Message.Delete();
             await e.Channel.SendMessage("~~" + e.GetArg("text") + "~~");
+        }
+
+        private async Task clean(Discord.Commands.CommandEventArgs e)
+        {
+            if (e.User.Id == Constants.NYAid)
+            {
+                Console.WriteLine("Clean command used by " + e.User);
+                await e.Message.Delete();
+                var num = 30;
+                User[] user = e.Message.MentionedUsers.ToArray();
+                ulong userID;
+                if (user.Count() > 0) userID = user[0].Id;
+                else userID = Constants.BIRIBIRIid;
+                var param = e.GetArg("amount").Split(' ')[0];
+                if (param.Length > 0) Int32.TryParse(param, out num);
+                Message[] m = await e.Channel.DownloadMessages(num);
+                for (int i = 0; i < m.Count(); i++)
+                {
+                    if (userID == m[i].User.Id) await m[i].Delete();
+                }
+            } 
+            else
+            {
+                await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
+            }
         }
 
         private async Task compliment(Discord.Commands.CommandEventArgs e)
@@ -188,7 +221,10 @@ namespace DiscordBot.Main
         {
             Console.WriteLine("Lenny command used by " + e.User);
             await e.Message.Delete();
-            await e.Channel.SendMessage("( ͡° ͜ʖ ͡°)");
+            var s = "( ͡° ͜ʖ ͡°)";
+            var param = e.GetArg("words");
+            if (param.Length > 0) s = param + " " + s;
+            await e.Channel.SendMessage(s);
         }
 
         private async Task money(Discord.Commands.CommandEventArgs e)

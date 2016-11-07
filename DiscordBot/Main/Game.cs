@@ -156,7 +156,7 @@ namespace DiscordBot.Main
                             points = 0;
                             await message.Channel.SendMessage(Responses.kys[rng.Next(Responses.kys.Length)]);
                         }
-                        if(message.Text.Split()[0].ToLower() == "hello" || message.Text.Split()[0].ToLower() == "ola")
+                        if(message.Text.Split()[0].ToLower() == "hello" || message.Text.Split()[0].ToLower() == "ola" || message.Text.Split()[0].ToLower() == "hi")
                         {
                             var s = "Hello to you too!";
                             if (message.User.Id == Constants.NYAid) s += " <3";

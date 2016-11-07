@@ -10,21 +10,28 @@ namespace DiscordBot.Main
     {
         public static string[] biribiri =
         {
-            "biribiri/1.jpeg",
-            "biribiri/2.png",
-            "biribiri/3.png",
-            "biribiri/4.jpeg",
-            "biribiri/5.png",
-            "biribiri/6.jpeg",
-            "biribiri/7.png",
-            "biribiri/8.png",
-            "biribiri/9.png",
-            "biribiri/10.png",
-            "biribiri/11.jpeg",
-            "biribiri/12.jpeg",
-            "biribiri/13.jpeg",
-            "biribiri/14.jpeg",
-            "biribiri/15.png"
+            @"Main\biribiri\1.jpg",
+            @"Main\biribiri\2.png",
+            @"Main\biribiri\3.png",
+            @"Main\biribiri\4.jpg",
+            @"Main\biribiri\5.png",
+            @"Main\biribiri\6.jpg",
+            @"Main\biribiri\7.png",
+            @"Main\biribiri\8.png",
+            @"Main\biribiri\9.png",
+            @"Main\biribiri\10.png",
+            @"Main\biribiri\11.jpg",
+            @"Main\biribiri\12.jpg",
+            @"Main\biribiri\13.jpg",
+            @"Main\biribiri\14.jpg",
+            @"Main\biribiri\15.png",
+            @"Main\biribiri\16.jpg",
+            @"Main\biribiri\17.jpg",
+            @"Main\biribiri\18.png",
+            @"Main\biribiri\19.jpg",
+            @"Main\biribiri\20.png",
+            @"Main\biribiri\21.jpg"
+
         };
 
         public static string[] bye =
@@ -34,6 +41,22 @@ namespace DiscordBot.Main
             "I miss you already!",
             "cya later!",
             "I hope you will be back soon!"
+        };
+
+        public static string[] cat =
+        {
+            @"Main\cat\cat1.jpg",
+            @"Main\cat\cat2.jpg",
+            @"Main\cat\cat3.jpg",
+            @"Main\cat\cat4.jpg",
+            @"Main\cat\cat5.jpg",
+            @"Main\cat\cat6.png",
+            @"Main\cat\cat7.jpg",
+            @"Main\cat\cat8.jpg",
+            @"Main\cat\cat9.jpg",
+            @"Main\cat\cat10.jpg",
+            @"Main\cat\cat11.jpg",
+            @"Main\cat\cat12.jpg"
         };
 
         public static string[] compliments = {
