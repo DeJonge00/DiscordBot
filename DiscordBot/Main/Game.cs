@@ -1,10 +1,12 @@
 ﻿using Discord;
 using Discord.Commands;
+using DiscordBot.Main.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
@@ -15,18 +17,25 @@ namespace DiscordBot.Main
     {
         // Fields
         private Boolean running;
-        List<PointDB> players;
+        public List<PointDB> players;
         private string statsFile = Path.Combine(@"F:\DiscordBot\stats", "stats.bin");
         private CommandService commands;
         private Random rng;
-
+        private Thread runningThread;
+        public DiscordClient client;
+        // Games
+        public GuessingGame guessingGame        { get; private set; }
+        public RPSGame rpsGame                  { get; private set; }
+        public QuizGame quizGame                { get; private set; }
+        public WarhammerGame warhammer          { get; private set; }
+        
         // Constructor
-
-        public Game(CommandService commands)
+        public Game(CommandService c, DiscordClient dc)
         {
-            this.commands = commands;
-            this.running = true;
-            this.rng = new Random();
+            client = dc;
+            commands = c;
+            running = true;
+            rng = new Random();
             try
             {
                 using (Stream stream = File.Open(statsFile, FileMode.Open))
@@ -44,25 +53,42 @@ namespace DiscordBot.Main
             if (players == null) players = new List<PointDB>();
 
             // Command list
+            commands.CreateCommand("stats")
+               .Description(" <user>\n\tShow user's stats (yours if none specified)")
+               .Parameter("null", ParameterType.Unparsed)
+               .Do(async (e) => await Stats(e));
+
+            // Mod command list
             commands.CreateCommand("resetGameData")
-               .Description("Reset player points database (dev stuff)")
-               .Do(async (e) => await reset(e));
+               .Description("\n\tReset player points database (mod)")
+               .Parameter("null", ParameterType.Unparsed)
+               .Do(async (e) => await Reset(e));
 
             commands.CreateCommand("save")
-                .Description("Save points")
-                .Do((e) => save());
+                .Description("\n\tSave points (mod)")
+                .Parameter("null", ParameterType.Unparsed)
+                .Do((e) => Save(e.User.Id));
 
             commands.CreateCommand("top")
-                .Description("Top players (sorted on points)")
+                .Description("\n\tTop players (sorted on points)")
                 .Parameter("amount", ParameterType.Unparsed)
-                .Do(async (e) => await top(e));
+                .Do(async (e) => await Top(e));
+            
+            // Init games
+            guessingGame = new GuessingGame(commands, this);
+            rpsGame = new RPSGame(commands, this);
+            quizGame = new QuizGame(commands, this);
+            warhammer = new WarhammerGame(commands, this);
+
+            // Start game thread
+            runningThread = new Thread(new ThreadStart(StartGame));
+            runningThread.Start();
         }
 
         // List of commands functions
-        public async Task reset(Discord.Commands.CommandEventArgs e)
+        public async Task Reset(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            Console.WriteLine("Reset command used by " + e.User);
             if (e.User.Id == Constants.NYAid)
             {
                 players = new List<PointDB>();
@@ -73,26 +99,59 @@ namespace DiscordBot.Main
             }
         }
 
-        public void save()
+        public void Save(ulong id)
         {
-            Console.WriteLine("SAVING STATS");
-            try
+            if (id == Constants.NYAid || id == 0)
             {
-                //serialize
-                using (Stream stream = File.Open(statsFile, FileMode.Create))
+                Console.WriteLine("SAVING STATS");
+                try
                 {
-                    var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                    bformatter.Serialize(stream, players);
+                    //serialize
+                    using (Stream stream = File.Open(statsFile, FileMode.Create))
+                    {
+                        var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                        bformatter.Serialize(stream, players);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-                Console.WriteLine("Error in saving");
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.StackTrace);
+                    Console.WriteLine("Error in saving");
+                }
             }
         }
 
-        public async Task top(Discord.Commands.CommandEventArgs e)
+        private async Task Stats(Discord.Commands.CommandEventArgs e)
+        {
+            Console.WriteLine("Stats command used by " + e.User);
+            if(e.Message.MentionedUsers.Count() > 0)
+                for (int i = 0; i < e.Message.MentionedUsers.Count(); i++)
+                    await ShowStats(e.Channel, e.Message.MentionedUsers.ElementAt(i));
+            else await ShowStats(e.Channel, e.User);
+        }
+
+        private async Task ShowStats(Channel c, User user)
+        {
+            PointDB data = null;
+            for (int i = 0; i < players.Count(); i++)
+                if (players.ElementAt(i).id == user.Id)
+                    data = players.ElementAt(i);
+            if (data == null)
+                players.Add(data = new PointDB(user.Id, user.Name));
+            var str = "Stats for " + user.Name +
+                "```\nLevel:\t\t\t\t " + data.level +
+                "\nBattle experience:\t " + data.exp + " / " + data.maxExp +
+                "\nValuable metals:\t   " + data.points +
+                "\nHealth:\t\t\t\t" + data.health + " / " + data.maxHealth +
+                "\nWeapon skill:\t\t  " + data.weaponSkill + 
+                "\nStrength:\t\t\t  " + data.strength + 
+                "\nToughness:\t\t\t " + data.toughness +
+                //"\nAttack speed:\n\t" + data.attackSpeed +
+                "```";
+            await c.SendMessage(str);
+        }
+
+        public async Task Top(Discord.Commands.CommandEventArgs e)
         {
             Console.WriteLine("Top command used by " + e.User);
             await e.Message.Delete();
@@ -105,75 +164,36 @@ namespace DiscordBot.Main
             string param = e.GetArg("amount").Split(' ')[0];
             List<PointDB> SortedList = players.OrderBy(o => o.points).Reverse().ToList();
             if (!(Int32.TryParse(param, out amount))) amount = players.Count();
-            if (amount > players.Count() || amount > 10)
+            if (amount > players.Count() || amount > 9)
             {
-                amount = Math.Min(players.Count(), 10);
+                amount = Math.Min(players.Count(), 9);
             }
-            string s = "Top " + amount + "\n";
+            string s = "```Top " + amount + "\n";
             for (int i = 0; i < amount; i++)
             {
-                s += (i + 1) + ") " + SortedList[i].name + ": " + SortedList[i].points + "\n";
+                s += (i + 1) + ") lvl: " + SortedList[i].level + " " + SortedList[i].name + ": " + SortedList[i].points + "\n";
             }
+            s += "```";
             await e.Channel.SendMessage(s);
         }
 
-        // Start game in specific channel
-        public async void startGame(Discord.Channel channel, int interval)
+        private void StartGame()
         {
-            int timer = interval;
-            Console.WriteLine("startGame()");
-            Message[] messages = await channel.DownloadMessages(1);
-            var oldMessage = messages[0];
-
             while (running)
             {
-                if (timer <= 0)
-                {
-                    save();
-                    timer = 5000;
-                } else { timer--; }
-                messages = await channel.DownloadMessages(1);
-                var message = messages[0];
-                if(message == oldMessage)
-                {
-                    System.Threading.Thread.Sleep(interval);
-                }
-                else
-                {
-                    oldMessage = message;
-                    if (!(message.Text.Length <= 0 || message.Text.First() == '>' || message.User.Id == Constants.BIRIBIRIid))
-                    {
-                        var points = 1;
-                        var player = getUser(message.User.Id, message.User.Name);
-
-                        if(message.Text == "ded" || message.Text == "*ded*")
-                        {
-                            points = 0;
-                            await message.Channel.SendMessage(Responses.ded[rng.Next(Responses.ded.Length)]);
-                        }
-                        if(message.Text == "kys" || message.Text.ToLower() == "kill yourself")
-                        {
-                            points = 0;
-                            await message.Channel.SendMessage(Responses.kys[rng.Next(Responses.kys.Length)]);
-                        }
-                        if(message.Text.Split()[0].ToLower() == "hello" || message.Text.Split()[0].ToLower() == "ola" || message.Text.Split()[0].ToLower() == "hi")
-                        {
-                            var s = "Hello to you too!";
-                            if (message.User.Id == Constants.NYAid) s += " <3";
-                            await message.Channel.SendMessage(s);
-                        }
-                        player.points += points;
-                    }
-
-                    if(message.User.Id == Constants.WIZZid)
-                    {
-                        if (rng.Next(300) <= 1) await message.Channel.SendMessage("<3");
-                    }
-                }
+                Save(0);
+                System.Threading.Thread.Sleep(15*60*1000);
             }
         }
 
-        private PointDB getUser(ulong id, string name)
+        public void Abort()
+        {
+            this.running = false;
+            runningThread.Abort();
+            warhammer.abort();
+        }
+
+        public PointDB GetUser(ulong id, string name)
         {
             // Check if user is in the DB
             PointDB player = null;
@@ -193,9 +213,10 @@ namespace DiscordBot.Main
             return player;
         }
 
-        public void abort()
+        public void Quit()
         {
-            this.running = false;
+            Abort();
+            Save(0);
         }
     }
 }

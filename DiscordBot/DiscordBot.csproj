@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DEG.Google, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DEG.Google.1.0\lib\net40\DEG.Google.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="DEG.ServiceCore, Version=1.2.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DEG.ServiceCore.1.2.5\lib\net40\DEG.ServiceCore.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Discord.Net, Version=0.9.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.0.9.6\lib\net45\Discord.Net.dll</HintPath>
       <Private>True</Private>
@@ -49,8 +57,20 @@
       <HintPath>..\packages\Discord.Net.Modules.0.9.6\lib\net45\Discord.Net.Modules.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="libvideo, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VideoLibrary.1.3.4\lib\portable-net45+win+wpa81+MonoAndroid10+xamarinios10+MonoTouch10\libvideo.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="libvideo.compat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\VideoLibrary.Compat.1.3.4\lib\portable-net45+win+wpa81+MonoAndroid10+xamarinios10+MonoTouch10\libvideo.compat.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NAudio, Version=1.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\NAudio.1.7.3\lib\net35\NAudio.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Nito.AsyncEx, Version=3.0.1.0, Culture=neutral, processorArchitecture=MSIL">
@@ -83,10 +103,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Main\BiriInteraction.cs" />
     <Compile Include="Main\Constants.cs" />
     <Compile Include="Main\Game.cs" />
+    <Compile Include="Main\GameObjects\GuessingSong.cs" />
+    <Compile Include="Main\GameObjects\GuessingGame.cs" />
+    <Compile Include="Main\GameObjects\QuizGame.cs" />
+    <Compile Include="Main\GameObjects\QuizQuestion.cs" />
+    <Compile Include="Main\GameObjects\RPSGame.cs" />
+    <Compile Include="Main\GameObjects\WarhammerGame.cs" />
+    <Compile Include="Main\GameObjects\WarhammerRPG\RPGEvent.cs" />
+    <Compile Include="Main\GameObjects\WarhammerRPG\RPGShop.cs" />
+    <Compile Include="Main\MessageHandler.cs" />
+    <Compile Include="Main\Music\MusicHandler.cs" />
     <Compile Include="Main\MyBot.cs" />
-    <Compile Include="Main\PointDB.cs" />
+    <Compile Include="Main\GameObjects\PointDB.cs" />
     <Compile Include="Main\Program.cs" />
     <Compile Include="Main\Responses.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -177,7 +208,59 @@
     <Content Include="Main\cat\cat9.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Main\railgun\railgun1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\railgun\railgun2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\railgun\railgun3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\railgun\railgun4.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\railgun\railgun5.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun1.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun10.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun11.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun12.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun2.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun3.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun4.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun5.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun6.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun7.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun8.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\sun\sun9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
