@@ -8,6 +8,7 @@ using Discord;
 using Discord.Commands;
 using System.IO;
 using System.Threading;
+using System.Net;
 
 namespace DiscordBot.Main
 {
@@ -15,9 +16,16 @@ namespace DiscordBot.Main
     {
         public Game game;
         public bool running;
-        private string statsFile = Path.Combine(@"F:\DiscordBot\stats", "interaction.bin");
+        private string statsFile = @"F:\DiscordBot\stats\interaction.bin";
         public List<BiriInteraction> users;
         private Thread runningThread;
+        private int counter = 0;
+
+        private int sunLock = -1;
+        private int kysLock = -1;
+        private int dedLock = -1;
+        private int helloLock = -1;
+        private int burnLock = -1;
 
         public MessageHandler(CommandService commands, Game g)
         {
@@ -48,36 +56,62 @@ namespace DiscordBot.Main
 
         internal async Task Handle(MessageEventArgs e)
         {
-            if (!(e.Message.Text.Length <= 0 || Constants.BOTprefix.Contains(e.Message.Text.First()) || Constants.BOTids.Contains(e.Message.User.Id)))
+            if (!(e.Message.Text.Length <= 0 || Constants.BOTprefix.Contains(e.Message.Text.First()) || e.User.IsBot))
             {
                 game.GetUser(e.User.Id, e.User.Name).AddPoints(10);
                 var player = game.GetUser(e.Message.User.Id, e.Message.User.Name);
 
                 if (e.Message.Text.ToLower().Split(' ').Contains("ded") || e.Message.Text.ToLower().Split(' ').Contains("*ded*") && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
-                    Console.WriteLine(e.User.Name + " said 'ded'");
-                    await e.Message.Channel.SendMessage(Responses.ded[MyBot.rng.Next(Responses.ded.Length)]);
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
+                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                    Console.WriteLine(str);
+                    int i;
+                    do
+                    {
+                        i = MyBot.rng.Next(Responses.ded.Length);
+                    } while (i == dedLock);
+                    dedLock = i;
+                    await e.Message.Channel.SendMessage(Responses.ded[i]);
                     return;
                 }
-                if ((e.Message.Text.ToLower().Split(' ').Contains("kys") || e.Message.Text.ToLower() == "kill yourself") && (e.Server.Name != "9CHAT" || MyBot.rng.Next(100) < 10) && !e.Message.IsMentioningMe())
+                if ((e.Message.Text.ToLower().Split(' ').Contains("kys") || e.Message.Text.ToLower() == "kill yourself") && (e.Server.Name != "9CHAT" || MyBot.rng.Next(100) < 25) && !e.Message.IsMentioningMe())
                 {
-                    await e.Message.Channel.SendMessage(Responses.kys[MyBot.rng.Next(Responses.kys.Length)]);
-                    Console.WriteLine(e.User.Name + " said 'kys'");
+                    int i;
+                    do
+                    {
+                        i = MyBot.rng.Next(Responses.kys.Length);
+                    } while (i == kysLock);
+                    kysLock = i;
+                    await e.Message.Channel.SendMessage(Responses.kys[i]);
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
+                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                    Console.WriteLine(str);
                     return;
                 }
                 if (e.Message.Text.ToLower().Split(' ').Contains("lenny"))
                 {
                     await e.Message.Channel.SendMessage("( ͡° ͜ʖ ͡°)");
-                    Console.WriteLine(e.User.Name + " said 'lenny'");
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
+                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                    Console.WriteLine(str);
                     return;
                 }
                 string[] greetings = { "hello", "hi", "hai" };
                 if (greetings.Contains(e.Message.Text.Split()[0].ToLower()) && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
-                    var s = Responses.hello[MyBot.rng.Next(Responses.hello.Length)];
+                    int i;
+                    do
+                    {
+                        i = MyBot.rng.Next(Responses.hello.Length);
+                    } while (i == helloLock);
+                    helloLock = i;
+                    var s = Responses.hello[i];
                     if (e.Message.User.Id == Constants.NYAid) s += " :heart:";
                     await e.Message.Channel.SendMessage(s);
-                    Console.WriteLine(e.User.Name + " said 'hi'");
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
+                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                    Console.WriteLine(str);
                     return;
                 }
                 if(e.Message.Text.Split(' ')[0] == "\\o/")
@@ -86,39 +120,63 @@ namespace DiscordBot.Main
                     return;
                 }
                 // Mentioned biribiri
-                if (e.Message.MentionedUsers.Count() > 0 && e.Message.IsMentioningMe() || e.Message.Text.ToLower().Split(' ').Contains("biribiri") || e.Message.Text.ToLower().Split(' ').Contains("biri"))
+                if (e.Message.MentionedUsers.Count() > 0 && e.Message.IsMentioningMe() || e.Message.Text.ToLower().Split(' ').Contains("biribiri") || e.Message.Text.ToLower().Split(' ').Contains("biri") || e.Message.Text.ToLower().Split(' ').Contains("biri,") || e.Message.Text.ToLower().Split(' ').Contains("biribiri,"))
                 {
                     var text = e.Message.Text.ToLower().Split(' ');
+                    string returnstr = "NO!";
                     var u = GetUser(e.User.Id, e.User.Name);
-                    if (text.Contains("love") || text.Contains("sweet") || text.Contains("nice") || text.Contains("good") || text.Contains(":heart:") || text.Contains("like"))
+                    string[] nice = { "love", "sweet", "nice", "good", ":heart:", "like" };
+                    string[] bad = { "death", "kill", "gross", "bad" };
+                    for(int i = 0; i < text.Count(); i++)
                     {
-                        u.AddKarma(1);
-                        return;
-                    }
-                    if (text.Contains("death") || text.Contains("kill") || text.Contains("gross") || text.Contains("bad"))
-                    {
-                        u.AddKarma(-1);
-                        return;
+                        if (nice.Contains(text.ElementAt(i)))
+                            u.AddKarma(1);
+                        if (bad.Contains(text.ElementAt(i)))
+                            u.AddKarma(-1);
                     }
                     if (text.Contains("thanks"))
                     {
                         u.AddKarma(2);
-                        await e.Channel.SendMessage("My pleasure" + " " + AddKarmaString(u));
+                        returnstr = "My pleasure :heart:";
+                        await e.Channel.SendMessage(returnstr);
                         return;
                     }
                     if (text.Contains("kys")) {
                         u.AddKarma(-5);
-                        await e.Channel.SendMessage(Responses.kys[MyBot.rng.Next(Responses.kys.Count())]);
-                        await e.User.SendMessage(Responses.burn[MyBot.rng.Next(Responses.burn.Count())] + " " + AddKarmaString(u));
+                        int i;
+                        do
+                        {
+                            i = MyBot.rng.Next(Responses.kys.Length);
+                        } while (i == kysLock);
+                        kysLock = i;
+                        await e.Channel.SendMessage(Responses.kys[i]);
+                        do
+                        {
+                            i = MyBot.rng.Next(Responses.burn.Length);
+                        } while (i == burnLock);
+                        burnLock = i;
+                        await e.User.SendMessage(Responses.burn[i]);
                         return;
                     }
                     if(e.Message.Text[e.Message.Text.Length-1] == '?')
                     {
-                        await e.Channel.SendMessage(Responses.qa[MyBot.rng.Next(Responses.qa.Count())] + " " + AddKarmaString(u));
+                        await e.Channel.SendMessage(Responses.qa[MyBot.rng.Next(Responses.qa.Count())]);
                         return;
                     }
-                    await e.Channel.SendMessage(Responses.response[MyBot.rng.Next(Responses.response.Count())] + " " + AddKarmaString(u));
+                    returnstr = Responses.response[MyBot.rng.Next(Responses.response.Count())];
+                    await e.Channel.SendMessage(returnstr);
                 }
+            }
+            if(e.Message.Attachments.Count() > 0 && !Constants.BOTids.Contains(e.User.Id) && e.User.Id != Constants.NYAid)
+            {
+                while(File.Exists(Path.Combine(@"F:\DiscordBot\stats\", counter.ToString() + ".jpg")))
+                {
+                    counter++;
+                }
+                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving message as " + counter + ".jpg";
+                File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                Console.WriteLine(str);
+                SaveFile(counter.ToString() + ".jpg", e.Message.Attachments.ElementAt(0).Url);
             }
             if (e.Message.User.Id == Constants.WIZZid)
             {
@@ -128,13 +186,14 @@ namespace DiscordBot.Main
 
         public void Abort()
         {
+            Save(0);
             running = false;
             runningThread.Abort();
         }
 
         public string AddKarmaString(BiriInteraction u)
         {
-            var karma = Math.Max(-2, Math.Min(2, u.karmaLevel));
+            var karma = Math.Max(-2, Math.Min(3, u.karmaLevel));
             if (u.id == Constants.NYAid)
                 return Constants.karmaResponse[0];
             return Constants.karmaResponse[karma + 3];
@@ -163,8 +222,12 @@ namespace DiscordBot.Main
         private async Task PraiseTheSun(MessageEventArgs e)
         {
             await e.Message.Delete();
-            Console.WriteLine("\\o/ command used by " + e.User);
-            var i = MyBot.rng.Next(Responses.sun.Length);
+            int i;
+            do
+            {
+                i = MyBot.rng.Next(Responses.sun.Length);
+            } while (i == sunLock);
+            sunLock = i;
             for (int a = 0; a < e.Message.MentionedUsers.Count(); a++)
                 if (e.Message.MentionedUsers.ElementAt(a).Id == Constants.TRISTANid)
                     i = 3;
@@ -189,8 +252,8 @@ namespace DiscordBot.Main
         {
             while (running)
             {
-                Save(0);
                 System.Threading.Thread.Sleep(15 * 60 * 1000);
+                Save(0);
             }
         }
 
@@ -198,7 +261,7 @@ namespace DiscordBot.Main
         {
             if (id == Constants.NYAid || id == 0)
             {
-                Console.WriteLine("SAVING STATS");
+                Console.WriteLine(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") SAVING INTERACTION STATS");
                 try
                 {
                     //serialize
@@ -213,6 +276,37 @@ namespace DiscordBot.Main
                     Console.WriteLine(ex.StackTrace);
                     Console.WriteLine("Error in saving");
                 }
+            }
+        }
+
+        private void SaveFile(string name, string url)
+        {
+            var path = Path.Combine(@"F:\DiscordBot\stats\", name);
+
+            byte[] imageBytes;
+            HttpWebRequest imageRequest = (HttpWebRequest)WebRequest.Create(url);
+            WebResponse imageResponse = imageRequest.GetResponse();
+
+            Stream responseStream = imageResponse.GetResponseStream();
+
+            using (BinaryReader br = new BinaryReader(responseStream))
+            {
+                imageBytes = br.ReadBytes(2000000);
+                br.Close();
+            }
+            responseStream.Close();
+            imageResponse.Close();
+
+            FileStream fs = new FileStream(path, FileMode.Create);
+            BinaryWriter bw = new BinaryWriter(fs);
+            try
+            {
+                bw.Write(imageBytes);
+            }
+            finally
+            {
+                fs.Close();
+                bw.Close();
             }
         }
     }

@@ -20,7 +20,8 @@ namespace DiscordBot.Main
         public static ulong DANTHEMANid = 189702078958927872;
         public static ulong AUTISTICGIRLid = 150300454708838401;
         public static ulong TATSUMAKIid = 172002275412279296;
-        public static ulong[] BOTids = { BIRIBIRIid, MIKIid, BONFIREid, DANTHEMANid, AUTISTICGIRLid, TATSUMAKIid };
+        public static ulong LEIABOT = 251143453365239809;
+        public static ulong[] BOTids = { BIRIBIRIid, MIKIid, BONFIREid, DANTHEMANid, AUTISTICGIRLid, TATSUMAKIid, LEIABOT };
         public static List<char> BOTprefix = new List<char> { '>', '!', '`', '-', '.' };
 
         // Special users
@@ -36,8 +37,9 @@ namespace DiscordBot.Main
             "You devil :imp:",              // #-2
             "Meanie :angry:",               // #-1
             "",                             // #0
-            "Cuty",                         // #1
-            "Sweetheart <3"                 // #2
+            "Good boi :smiley:",            // #1
+            "Cuty",                         // #2
+            "Sweetheart <3"                 // #3
             
         };
 
@@ -70,39 +72,52 @@ namespace DiscordBot.Main
         {
             song1, song2, song3
         };
-
-        // Music
-        public static string musicPath = @"C:\Users\dejon\Music\DiscordBot";
-
-        public static int KiB(this int value) => value * 1024;
-        public static int KB(this int value) => value * 1000;
-
-        public static int MiB(this int value) => value.KiB() * 1024;
-        public static int MB(this int value) => value.KB() * 1000;
-
-        public static int GiB(this int value) => value.MiB() * 1024;
-        public static int GB(this int value) => value.MB() * 1000;
-
-        public static ulong KiB(this ulong value) => value * 1024;
-        public static ulong KB(this ulong value) => value * 1000;
-
-        public static ulong MiB(this ulong value) => value.KiB() * 1024;
-        public static ulong MB(this ulong value) => value.KB() * 1000;
-
-        public static ulong GiB(this ulong value) => value.MiB() * 1024;
-        public static ulong GB(this ulong value) => value.MB() * 1000;
-
-        public static string TrimTo(string str, int num, bool hideDots = false)
+        // Truth or dare
+        public static string[] truth =
         {
-            if (num < 0)
-                throw new ArgumentOutOfRangeException(nameof(num), "TrimTo argument cannot be less than 0");
-            if (num == 0)
-                return string.Empty;
-            if (num <= 3)
-                return string.Concat(str.Select(c => '.'));
-            if (str.Length < num)
-                return str;
-            return string.Concat(str.Take(num - 3)) + (hideDots ? "" : "...");
-        }
+            "What is the stupidest thing you have ever done?",
+            "What is the most embarrassing moment of your life?",
+            "If you could change one thing on your body, what would it be?",
+            "What is the silliest thing you have an emotional attachment to?",
+            "What are you most afraid of?",
+            "What is the scariest dream you have ever had?",
+            "Whom here do you hate the most?",
+            "What you do when you are alone at home?",
+            "What is the most embarrassing thing your parents have caught you doing?",
+            "Who is your favourite person and why?",
+            "Do you believe in love at first sight?",
+            "What is your fetish?",
+            "Does size matter?",
+            "Who do you like the least in your family?",
+            "Who is your celebrity husband or wife?",
+            "If you could be any dinosaur, which would it be?",
+            "On a scale from 1 to bananya, how do you rate yourself?",
+            "What is the most childish thing you still do?",
+            "Who here would you most like to make out with?",
+            "What is your deepest darkest fear?",
+            "Why did you break up with your last boyfriend or girlfriend?"
+
+        };
+        public static string[] dare =
+        {
+            "Send us a hand-pic!",
+            "Sing a song in the voice channel!",
+            "Ask a staffmember something really personal in a private message!",
+            "Turn on your text-to-speech for an hour!",
+            "Wear your headphones the wrong way around!",
+            "Only talk in song lyrics for 15 minutes!",
+            "Ask someone (that is online) to date you in another server!",
+            "Send a picture of the muscles you are most proud of!",
+            "Only talk in cancer/emoji for the next 15 minutes!",
+            "End all your sentences with \"love you babe :heart:\" for the next hour!",
+            "Make up a story about the item to your right!",
+            "Sing everything you say for the next 10 minutes!",
+            "Set the language of your phone to an (to you) unknown language for the next hour!",
+            "All your sentences in the coming 30 minutes must contain (some form of) nya (cattalk)!",
+            "Pretend that you are an airplane for 2 minutes!",
+            "Say the alphabet backwards in a different language!",
+            "10 pushups! Go!",
+            "Send us a picture of your pajamas!"
+        };
     }
 }

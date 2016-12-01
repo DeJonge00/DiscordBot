@@ -25,6 +25,8 @@ namespace DiscordBot.Main
         public void AddKarma(int n)
         {
             karma += n;
+            if (karma > 10 * karmaLevel)
+                IncrementLevel();
         }
 
         public void IncrementLevel()

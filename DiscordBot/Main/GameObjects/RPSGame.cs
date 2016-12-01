@@ -48,14 +48,12 @@ namespace DiscordBot.Main.GameObjects
                 if (e.User.Id == host.Id)
                 {
                     hostChoice = param[0];
-                    //Console.WriteLine("Host chose: " + hostChoice);
                     await FinishGame();
                     return;
                 }
                 if (e.User.Id == opponent.Id)
                 {
                     opponentChoice = param[0];
-                    //Console.WriteLine("Opponent chose: " + opponentChoice);
                     await FinishGame();
                     return;
                 }

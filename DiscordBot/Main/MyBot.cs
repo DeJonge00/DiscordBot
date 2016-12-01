@@ -5,6 +5,8 @@ using Discord;
 using Discord.Commands;
 using Discord.Modules;
 using DiscordBot.Main.Music;
+using System.IO;
+using System.Collections.Generic;
 
 namespace DiscordBot.Main
 {
@@ -12,14 +14,24 @@ namespace DiscordBot.Main
     {
         // Fields
         CommandService commands;
-        //private MusicHandler musicHandler;
-        public Channel gameChannel;
 
         public static DiscordClient discordClient       { get; private set; }
         public static Random rng = new Random();
         public MessageHandler handler                   { get; private set; }
         public Game game                                { get; private set; }
         public MusicHandler music                       { get; private set; }
+
+        // Duplicate saving
+        private int biribiriLock = -1;
+        private int byeLock = -1;
+        private int catLock = -1;
+        private int complimentLock = -1;
+        private int faceLock = -1;
+        private int hugLock = -1;
+        private int moneyLock = -1;
+        private int kysLock = -1;
+        private int cureLock = -1;
+        private int dedLock = -1;
 
         // Constructor
         public MyBot()
@@ -41,9 +53,15 @@ namespace DiscordBot.Main
             commands = discordClient.GetService<CommandService>();
 
             // List of commands
+            commands.CreateCommand("60fps")
+                .Alias("60")
+                .Description("<number\n\tPrint a pic of the one true Biribiri")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await CureCancer(e));
+
             commands.CreateCommand("biribiri")
-                .Description("\n\tPrint a pic of the one true Biribiri")
-                .Parameter("null", ParameterType.Unparsed)
+                .Description("<number>\n\tPrint a pic of the one true Biribiri")
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Biribiri(e));
 
             commands.CreateCommand("bye")
@@ -52,8 +70,8 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Bye(e));
 
             commands.CreateCommand("cat")
-                .Description("\n\tRandom cat pic!!!")
-                .Parameter("null", ParameterType.Unparsed)
+                .Description("<number>\n\tRandom cat pic!!!")
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Cat(e));
 
             commands.CreateCommand("censored")
@@ -65,11 +83,6 @@ namespace DiscordBot.Main
                 .Description("<option1> {<;option2>}\n\tLet Biribiri choose one from your options")
                 .Parameter("arguments", ParameterType.Unparsed)
                 .Do(async (e) => await Choose(e));
-
-            commands.CreateCommand("clean")
-                .Description("\n\tRemove messages of Biribiri")
-                .Parameter("amount", ParameterType.Unparsed)
-                .Do(async (e) => await Clean(e));
 
             commands.CreateCommand("coinflip")
                 .Description("<heads | tails>\n\tFlip a coin with a slight chance of railgun")
@@ -86,6 +99,12 @@ namespace DiscordBot.Main
                 .Description("<message>\n\tDelete your message after a sec")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Delete(e));
+
+            commands.CreateCommand("ded")
+                .Alias("chat")
+                .Description("\n\tLiven chat up a little")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await DedChat(e));
 
             commands.CreateCommand("echo")
                 .Description("<message>\n\tEcho the message")
@@ -137,6 +156,11 @@ namespace DiscordBot.Main
                 .Parameter("null", ParameterType.Unparsed)
                 .Do(async (e) => await Money(e));
 
+            commands.CreateCommand("ping")
+                .Description("\n\tGet your ping (and its a game!)")
+                .Parameter("null", ParameterType.Unparsed)
+                .Do(async (e) => await Ping(e));
+
             commands.CreateCommand("table")
                 .Description("\n\tPrint tableflip / unflip")
                 .Parameter("null", ParameterType.Unparsed)
@@ -162,15 +186,10 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Ban(e));
 
-            commands.CreateCommand("kick")
-                .Description("\n\tKick a user (mod)")
-                .Parameter("param", ParameterType.Unparsed)
-                .Do(async (e) => await Kick(e));
-
-            commands.CreateCommand("role")
-                .Description("\n\tAdd a role to yourself (mod)")
-                .Parameter("param", ParameterType.Unparsed)
-                .Do(async (e) => await Role(e));
+            commands.CreateCommand("clean")
+                .Description("\n\tRemove messages of Biribiri (mod)")
+                .Parameter("amount", ParameterType.Unparsed)
+                .Do(async (e) => await Clean(e));
 
             discordClient.MessageReceived += async (s, e) =>
             {
@@ -188,7 +207,192 @@ namespace DiscordBot.Main
 
             discordClient.MessageDeleted += (s, e) =>
             {
-                if (e.Message.Text.Length > 0 && !Constants.BOTids.Contains(e.User.Id)) Console.WriteLine(e.User.Name + ": " + e.Message.Text);
+                if (e.Message.Text.Length > 0 && !e.User.IsBot)
+                {
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
+                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+                    Console.WriteLine(str);
+                }
+            };
+
+            discordClient.UserUpdated += (s, e) =>
+            {
+                var message = "User changed: " + e.Before.Name + " |";
+                if (e.Before.Nickname != e.After.Nickname)
+                {
+                    message += " nn from: " + e.Before.Nickname + " to: " + e.After.Nickname;
+                }
+                else if (e.Before.Name != e.After.Name)
+                {
+                    message += " name from: " + e.Before.Name + " to: " + e.After.Name;
+                }
+                else if (!e.Before.Roles.ToList().Equals(e.After.Roles.ToList()))
+                {
+                    var check = message;
+                    List<Role> roles1 = e.Before.Roles.ToList();
+                    List<Role> roles2 = e.After.Roles.ToList();
+                    var listMin = roles1.Except(roles2).ToList();
+                    var listPlus = roles2.Except(roles1).ToList();
+                    foreach (Role r in listMin)
+                    {
+                        message += " -role: " + r.Name;
+                    }
+                    foreach (Role r in listPlus)
+                    {
+                        message += " +role: " + r.Name;
+                    }
+                    if (check == message)
+                        return;
+                }
+                else
+                {
+                    return;
+                }
+                Console.WriteLine(message);
+            };
+
+            discordClient.RoleUpdated += (s, e) =>
+            {
+                var message = "Role changed:";
+                if (e.Before.Permissions.Administrator != e.After.Permissions.Administrator)
+                {
+                    if (e.Before.Permissions.Administrator)
+                        message += " -Administrator";
+                    else message += " +Administrator";
+                }
+                if (e.Before.Permissions.AttachFiles != e.After.Permissions.AttachFiles)
+                {
+                    if (e.Before.Permissions.AttachFiles)
+                        message += " -AttachFiles";
+                    else message += " +AttachFiles";
+                }
+                if (e.Before.Permissions.BanMembers != e.After.Permissions.BanMembers)
+                {
+                    if (e.Before.Permissions.BanMembers)
+                        message += " -BanMembers";
+                    else message += " +BanMembers";
+                }
+                if (e.Before.Permissions.ChangeNickname != e.After.Permissions.ChangeNickname)
+                {
+                    if (e.Before.Permissions.ChangeNickname)
+                        message += " -ChangeNickname";
+                    else message += " +ChangeNickname";
+                }
+                if (e.Before.Permissions.Connect != e.After.Permissions.Connect)
+                {
+                    if (e.Before.Permissions.Connect)
+                        message += " -Connect";
+                    else message += " +Connect";
+                }
+                if (e.Before.Permissions.CreateInstantInvite != e.After.Permissions.CreateInstantInvite)
+                {
+                    if (e.Before.Permissions.CreateInstantInvite)
+                        message += " -CreateInstantInvite";
+                    else message += " +CreateInstantInvite";
+                }
+                if (e.Before.Permissions.DeafenMembers != e.After.Permissions.DeafenMembers)
+                {
+                    if (e.Before.Permissions.DeafenMembers)
+                        message += " -DeafenMembers";
+                    else message += " +DeafenMembers";
+                }
+                if (e.Before.Permissions.EmbedLinks != e.After.Permissions.EmbedLinks)
+                {
+                    if (e.Before.Permissions.EmbedLinks)
+                        message += " -EmbedLinks";
+                    else message += " +EmbedLinks";
+                }
+                if (e.Before.Permissions.KickMembers != e.After.Permissions.KickMembers)
+                {
+                    if (e.Before.Permissions.KickMembers)
+                        message += " -KickMembers";
+                    else message += " +KickMembers";
+                }
+                if (e.Before.Permissions.ManageChannels != e.After.Permissions.ManageChannels)
+                {
+                    if (e.Before.Permissions.ManageChannels)
+                        message += " -ManageChannels";
+                    else message += " +ManageChannels";
+                }
+                if (e.Before.Permissions.ManageMessages != e.After.Permissions.ManageMessages)
+                {
+                    if (e.Before.Permissions.ManageMessages)
+                        message += " -ManageMessages";
+                    else message += " +ManageMessages";
+                }
+                if (e.Before.Permissions.ManageNicknames != e.After.Permissions.ManageNicknames)
+                {
+                    if (e.Before.Permissions.ManageNicknames)
+                        message += " -ManageNicknames";
+                    else message += " +ManageNicknames";
+                }
+                if (e.Before.Permissions.ManageRoles != e.After.Permissions.ManageRoles)
+                {
+                    if (e.Before.Permissions.ManageRoles)
+                        message += " -ManageRoles";
+                    else message += " +ManageRoles";
+                }
+                if (e.Before.Permissions.ManageServer != e.After.Permissions.ManageServer)
+                {
+                    if (e.Before.Permissions.ManageServer)
+                        message += " -ManageServer";
+                    else message += " +ManageServer";
+                }
+                if (e.Before.Permissions.MentionEveryone != e.After.Permissions.MentionEveryone)
+                {
+                    if (e.Before.Permissions.MentionEveryone)
+                        message += " -MentionEveryone";
+                    else message += " +MentionEveryone";
+                }
+                if (e.Before.Permissions.MoveMembers != e.After.Permissions.MoveMembers)
+                {
+                    if (e.Before.Permissions.MoveMembers)
+                        message += " -MoveMembers";
+                    else message += " +MoveMembers";
+                }
+                if (e.Before.Permissions.MuteMembers != e.After.Permissions.MuteMembers)
+                {
+                    if (e.Before.Permissions.MuteMembers)
+                        message += " -MuteMembers";
+                    else message += " +MuteMembers";
+                }
+                if (e.Before.Permissions.ReadMessageHistory != e.After.Permissions.ReadMessageHistory)
+                {
+                    if (e.Before.Permissions.ReadMessageHistory)
+                        message += " -ReadMessageHistory";
+                    else message += " +ReadMessageHistory";
+                }
+                if (e.Before.Permissions.ReadMessages != e.After.Permissions.ReadMessages)
+                {
+                    if (e.Before.Permissions.ReadMessages)
+                        message += " -ReadMessages";
+                    else message += " +ReadMessages";
+                }
+                if (e.Before.Permissions.SendMessages != e.After.Permissions.SendMessages)
+                {
+                    if (e.Before.Permissions.SendMessages)
+                        message += " -SendMessages";
+                    else message += " +SendMessages";
+                }
+                if (e.Before.Permissions.SendTTSMessages != e.After.Permissions.SendTTSMessages)
+                {
+                    if (e.Before.Permissions.SendTTSMessages)
+                        message += " -SendTTSMessages";
+                    else message += " +SendTTSMessages";
+                }
+                if (e.Before.Permissions.Speak != e.After.Permissions.Speak)
+                {
+                    if (e.Before.Permissions.Speak)
+                        message += " -Speak";
+                    else message += " +Speak";
+                }
+                if (e.Before.Permissions.UseVoiceActivation != e.After.Permissions.UseVoiceActivation)
+                {
+                    if (e.Before.Permissions.UseVoiceActivation)
+                        message += " -UseVoiceActivation";
+                    else message += " +UseVoiceActivation";
+                }
+                Console.WriteLine(message);
             };
 
             // Connecting to discord server
@@ -217,14 +421,21 @@ namespace DiscordBot.Main
 
         private async Task Biribiri(Discord.Commands.CommandEventArgs e)
         {
-            try
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
             {
-                await e.Message.Delete();
-            } catch
-            {
-                Console.WriteLine(e.User.Name + " " + e.GetArg("param"));
+                do
+                {
+                    i = rng.Next(Responses.biribiri.Length);
+                } while (i == biribiriLock);
             }
-            var i = rng.Next(Responses.biribiri.Length);
+            if (i > Responses.biribiri.Count())
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.biribiri.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            biribiriLock = i;
             var str = Responses.biribiri[i];
             await e.Channel.SendFile(str);
         }
@@ -233,7 +444,13 @@ namespace DiscordBot.Main
         {
             await e.Message.Delete();
             var param = e.GetArg("user");
-            var str = Responses.bye[rng.Next(Responses.bye.Length)];
+            int i;
+            do
+            {
+                i = rng.Next(Responses.bye.Length);
+            } while (i == byeLock);
+            byeLock = i;
+            var str = Responses.bye[rng.Next(i)];
             if (param.Length >= 1)
             {
                 str = param + ", " + str;
@@ -250,7 +467,20 @@ namespace DiscordBot.Main
         private async Task Cat(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var i = rng.Next(Responses.cat.Length);
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.cat.Length);
+                } while (i == catLock);
+            }
+            if (i > Responses.cat.Count())
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.cat.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            catLock = i;
             var str = Responses.cat[i];
             await e.Channel.SendFile(str);
         }
@@ -313,7 +543,9 @@ namespace DiscordBot.Main
 
         private async Task Coinflip(Discord.Commands.CommandEventArgs e)
         {
-            Console.WriteLine("Coinflip command used by " + e.User);
+            var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
+            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+            Console.WriteLine(str);
             var param = e.GetArg("choice").Split(' ');
             var n = rng.Next(100);
             if (param.Length <= 0 || n <= 4 || !(param[0].ToLower() == "heads" || param[0].ToLower() == "tails"))
@@ -341,13 +573,64 @@ namespace DiscordBot.Main
         {
             await e.Message.Delete();
             var param = e.GetArg("user");
-            var str = Responses.compliments[rng.Next(Responses.compliments.Length)];
+            int i;
+            do
+            {
+                i = rng.Next(Responses.compliments.Length);
+            } while (i == complimentLock);
+            complimentLock = i;
+            var str = Responses.compliments[rng.Next(i)];
             if (param.Length >= 1)
             {
                 str = param + ", " + str;
             }
             str = FirstCharToUpper(str);
             await e.Channel.SendMessage(str);
+        }
+
+        private async Task CureCancer(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.curecancer.Length);
+                } while (i == cureLock);
+            }
+            if (i > Responses.curecancer.Count())
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.curecancer.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            cureLock = i;
+            var gif = Responses.curecancer[i];
+            var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
+            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+            Console.WriteLine(str);
+            await e.Channel.SendFile(gif);
+        }
+
+        private async Task DedChat(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.dedchat.Length);
+                } while (i == dedLock);
+            }
+            if (i > Responses.dedchat.Count())
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.dedchat.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            biribiriLock = i;
+            var str = Responses.dedchat[i];
+            await e.Channel.SendFile(str);
         }
 
         private async Task Echo(Discord.Commands.CommandEventArgs e)
@@ -357,23 +640,29 @@ namespace DiscordBot.Main
             if (param.Length <= 0)
             {
                 await e.Channel.SendMessage("...");
+                return;
             }
-            else
-            {
-                await e.Channel.SendMessage(param.ToString());
-            }
+            await e.Channel.SendMessage(param.ToString());
         }
 
         private async Task Delete(Discord.Commands.CommandEventArgs e)
         {
-            System.Threading.Thread.Sleep(2000);
+            int i = 15;
+            Int32.TryParse(e.GetArg("param").Split().ElementAt(0), out i);
+            System.Threading.Thread.Sleep(100*i);
             await e.Message.Delete();
         }
 
         private async Task Face(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var s = Responses.faces.ElementAt(MyBot.rng.Next(Responses.faces.Count()));
+            int i;
+            do
+            {
+                i = rng.Next(Responses.faces.Length);
+            } while (i == faceLock);
+            faceLock = i;
+            var s = Responses.faces.ElementAt(i);
             var param = e.GetArg("words");
             if (param.Length > 0) s = param + " " + s;
             await e.Channel.SendMessage(s);
@@ -382,7 +671,12 @@ namespace DiscordBot.Main
         private async Task Hug(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var num = MyBot.rng.Next(Responses.hug.Count());
+            int num;
+            do
+            {
+                num = rng.Next(Responses.hug.Length);
+            } while (num == hugLock);
+            hugLock = num;
             if (e.Message.MentionedUsers.Count() <= 0 || e.Message.MentionedUsers.ElementAt(0).Id == e.User.Id)
             {
                 await e.Channel.SendMessage("So lonely that you are trying to hug yourself? *hahaha*");
@@ -415,7 +709,13 @@ namespace DiscordBot.Main
                 await Compliment(e);
                 return;
             }
-            var str = Responses.burn[rng.Next(Responses.burn.Count())];
+            int i;
+            do
+            {
+                i = rng.Next(Responses.burn.Length);
+            } while (i == kysLock);
+            kysLock = i;
+            var str = Responses.burn[i];
             if (param.Length >= 1)
             {
                 str = param + ", " + str;
@@ -482,9 +782,36 @@ namespace DiscordBot.Main
         private async Task Money(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var str = Responses.money[rng.Next(Responses.money.Length)];
+            int i;
+            do
+            {
+                i = rng.Next(Responses.money.Length);
+            } while (i == moneyLock);
+            moneyLock = i;
+            var str = Responses.money[i];
             str = FirstCharToUpper(str);
             await e.Channel.SendMessage(str);
+        }
+
+        private async Task Ping(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            var timediff = DateTime.Now.ToUniversalTime();
+            timediff.Subtract(e.Message.Timestamp);
+            Discord.Message mess;
+            if (rng.Next(3) == 0)
+            {
+                if(rng.Next(2) == 0)
+                {
+                    mess =await e.Channel.SendMessage("You missed, I win! `" + e.User.Name + "'s ping: " + timediff.Millisecond.ToString() + "`");
+                } else
+                {
+                    mess = await e.Channel.SendMessage("Ooops, you win this time... ` " + e.User.Name + "'s ping: " + timediff.Millisecond.ToString() + "`");
+                }
+            } else
+            {
+                mess = await e.Channel.SendMessage("Pong! ` " + e.User.Name + "'s ping: " + timediff.Millisecond.ToString() + "`");
+            }
         }
 
         private async Task Restart(Discord.Commands.CommandEventArgs e)
@@ -523,56 +850,6 @@ namespace DiscordBot.Main
             }
         }
 
-        private async Task Kick(Discord.Commands.CommandEventArgs e)
-        {
-            await e.Message.Delete();
-            if (e.User.Id != Constants.NYAid)
-            {
-                await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
-                return;
-            }
-            if (e.Message.MentionedUsers.Count() <= 0)
-            {
-                await e.Channel.SendMessage("KICKING USER " + e.GetArg("param"));
-                return;
-            }
-            await e.Message.MentionedUsers.ElementAt(0).Kick();
-        }
-
-        private async Task Role(Discord.Commands.CommandEventArgs e)
-        {
-            await e.Message.Delete();
-            if (e.User.Id == Constants.NYAid)
-            {
-                var param = e.GetArg("param");
-                if(param.Length <= 0)
-                {
-                    await e.Channel.SendMessage("No arguments given");
-                    return;
-                }
-                Discord.Role role = null;
-                foreach(Discord.Role r in e.Server.Roles)
-                {
-                    if (r.Name.ToLower() == param)
-                        role = r;
-                }
-                if (role != null)
-                {
-                    if (!e.User.HasRole(role))
-                    {
-                        await e.User.AddRoles(role);
-                        Console.WriteLine(e.User.Name + " added role " + role.Name);
-                        return;
-                    }
-                    await e.User.RemoveRoles(role);
-                    Console.WriteLine(e.User.Name + " removed role " + role.Name);
-                    return;
-                }
-                Console.WriteLine("Role " + param + " not found :/");
-            }
-            else await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
-        }
-
         // Help function
         private async Task Help(Discord.Commands.CommandEventArgs e)
         {
@@ -589,7 +866,9 @@ namespace DiscordBot.Main
         // Methods
         private void Log(object sender, LogMessageEventArgs e)
         {
-            Console.WriteLine(e.Message);
+            var str = DateTime.Now.ToShortTimeString() + " - " + e.Severity + " - " + e.Source + ") " + e.Message;
+            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+            Console.WriteLine(str);
         }
 
         public static string FirstCharToUpper(string input)

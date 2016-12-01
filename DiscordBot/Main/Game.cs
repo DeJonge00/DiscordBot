@@ -28,7 +28,8 @@ namespace DiscordBot.Main
         public RPSGame rpsGame                  { get; private set; }
         public QuizGame quizGame                { get; private set; }
         public WarhammerGame warhammer          { get; private set; }
-        
+        public TruthOrDare todGame              { get; private set; }
+
         // Constructor
         public Game(CommandService c, DiscordClient dc)
         {
@@ -79,6 +80,7 @@ namespace DiscordBot.Main
             rpsGame = new RPSGame(commands, this);
             quizGame = new QuizGame(commands, this);
             warhammer = new WarhammerGame(commands, this);
+            todGame = new TruthOrDare(commands, this);
 
             // Start game thread
             runningThread = new Thread(new ThreadStart(StartGame));
@@ -103,7 +105,7 @@ namespace DiscordBot.Main
         {
             if (id == Constants.NYAid || id == 0)
             {
-                Console.WriteLine("SAVING STATS");
+                Console.WriteLine(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") SAVING GAME STATS");
                 try
                 {
                     //serialize
@@ -123,8 +125,10 @@ namespace DiscordBot.Main
 
         private async Task Stats(Discord.Commands.CommandEventArgs e)
         {
-            Console.WriteLine("Stats command used by " + e.User);
-            if(e.Message.MentionedUsers.Count() > 0)
+            var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
+            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+            Console.WriteLine(str);
+            if (e.Message.MentionedUsers.Count() > 0)
                 for (int i = 0; i < e.Message.MentionedUsers.Count(); i++)
                     await ShowStats(e.Channel, e.Message.MentionedUsers.ElementAt(i));
             else await ShowStats(e.Channel, e.User);
@@ -153,7 +157,6 @@ namespace DiscordBot.Main
 
         public async Task Top(Discord.Commands.CommandEventArgs e)
         {
-            Console.WriteLine("Top command used by " + e.User);
             await e.Message.Delete();
             if (!running)
             {

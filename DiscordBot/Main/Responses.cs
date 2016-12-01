@@ -42,7 +42,12 @@ namespace DiscordBot.Main
             "SECTUMSEMPRA, CRUCIO, AVADA KEDAVRA :smiling_imp:",
             "Imma write you out of the script of life, so you will be meaninglessly forgotten :smiling_imp:",
             "Imma strangle you while slowly inserting burning needles in your body :smiling_imp:",
-            "Imma make you cum to boku no pico :smiling_imp:"
+            "Imma make you cum to boku no pico :smiling_imp:",
+            "Imma code a big bug in you :smiling_imp:",
+            "Imma suck your intestines out with a vacuum cleaner :smiling_imp:",
+            "Imma use chaos magic to suck you into the void :smiling_imp:",
+            "Imma put you in a room full of sweaty, greasy old people :smiling_imp:",
+            "Imma starve you in a completely silent room"
         };
 
         public static string[] bye =
@@ -52,23 +57,22 @@ namespace DiscordBot.Main
             "I miss you already!",
             "cya later!",
             "I hope I'll see you soon!",
-            "bye bye!"
+            "bye bye!",
+            "Good luck with stuff"
         };
 
         public static string[] cat =
         {
-            @"Main\cat\cat1.jpg",
-            @"Main\cat\cat2.jpg",
-            @"Main\cat\cat3.jpg",
-            @"Main\cat\cat4.jpg",
-            @"Main\cat\cat5.jpg",
-            @"Main\cat\cat6.png",
-            @"Main\cat\cat7.jpg",
-            @"Main\cat\cat8.jpg",
-            @"Main\cat\cat9.jpg",
-            @"Main\cat\cat10.jpg",
-            @"Main\cat\cat11.jpg",
-            @"Main\cat\cat12.jpg"
+            @"Main\cat\1.jpg",
+            @"Main\cat\2.jpg",
+            @"Main\cat\3.jpg",
+            @"Main\cat\4.jpg",
+            @"Main\cat\5.jpg",
+            @"Main\cat\6.jpg",
+            @"Main\cat\7.jpg",
+            @"Main\cat\8.jpg",
+            @"Main\cat\9.jpg",
+            @"Main\cat\10.jpg"
         };
 
         public static string[] compliments = {
@@ -95,7 +99,33 @@ namespace DiscordBot.Main
             "I bet you do the crossword puzzle in ink",
             "you're even better than a unicorn, because you're real"
         };
-        
+
+        public static string[] curecancer =
+        {
+            @"Main\gif\1.gif",
+            @"Main\gif\2.gif",
+            @"Main\gif\3.gif",
+            @"Main\gif\4.gif",
+            @"Main\gif\5.gif",
+            @"Main\gif\6.gif",
+            @"Main\gif\7.gif",
+            @"Main\gif\8.gif",
+            @"Main\gif\9.gif",
+            @"Main\gif\10.gif",
+            @"Main\gif\11.gif",
+            @"Main\gif\12.gif",
+            @"Main\gif\13.gif",
+            @"Main\gif\14.gif",
+            @"Main\gif\15.gif",
+            @"Main\gif\16.gif",
+            @"Main\gif\17.gif",
+            @"Main\gif\18.gif",
+            @"Main\gif\19.gif",
+            @"Main\gif\20.gif",
+            @"Main\gif\21.gif",
+            @"Main\gif\22.gif"
+        };
+
         public static string[] ded =
         {
             "But I am here :/",
@@ -107,7 +137,26 @@ namespace DiscordBot.Main
             "Ehhmm.. Why don't you talk about the color blue?",
             "How about we talk about unicorns?",
             "Why don't we play a game?",
-            "Sooooo... Lets do lewd stuff now?"
+            "Sooooo... Lets do lewd stuff now?",
+            "Just like your love life :smile:",
+            "You look like you want to do my homework?",
+            "Let's talk about your mom then!"
+        };
+
+        public static string[] dedchat =
+        {
+            @"Main\dedchat\1.jpg",
+            @"Main\dedchat\2.jpg",
+            @"Main\dedchat\3.jpg",
+            @"Main\dedchat\4.jpg",
+            @"Main\dedchat\5.jpg",
+            @"Main\dedchat\6.jpg",
+            @"Main\dedchat\7.jpg",
+            @"Main\dedchat\8.jpg",
+            @"Main\dedchat\9.jpg",
+            @"Main\dedchat\10.jpg",
+            @"Main\dedchat\11.jpg",
+            @"Main\dedchat\12.gif"
         };
 
 
@@ -116,7 +165,12 @@ namespace DiscordBot.Main
             "(づ◔ ͜ʖ◔)づ",
             "ヾ(๑╹◡╹)ﾉ\"",
             "(:point_up:︎ ՞ਊ ՞):point_up:︎",
-            "(๑･̑◡･̑๑)"
+            "(๑･̑◡･̑๑)",
+            ":v:︎('ω'):v:︎",
+            "ᕦ( ͡°╭͜ʖ╮͡° )ᕤ",
+            "乁( ⁰͡ Ĺ̯ ⁰͡ ) ㄏ",
+            "( ͡⌐■ ͜ʖ ͡-■)",
+            "( ͡° ͜ʖ ͡°)>⌐■-■"
         };
 
         public static string[] hello =
@@ -125,7 +179,7 @@ namespace DiscordBot.Main
             "Welcome back!",
             "Hiiiii!",
             "How are you today?",
-            "おはようございます"
+            "おはいようございます"
         };
 
         public static string[] hug =
@@ -141,7 +195,10 @@ namespace DiscordBot.Main
             " stops fapping to kpop for a hug with ",
             " fabulously flies in for a hug with ",
             " practices a new more cuddly type of hug on ",
-            " stabs a lot of people to be the only one to hug "
+            " stabs a lot of people to be the only one to hug ",
+            " morphs into a hugmonster and attacks ",
+            " uses the whole love-bar to hug ",
+            " used special move \"HUG\" on "
         };
 
         public static string[] kys =
@@ -165,7 +222,8 @@ namespace DiscordBot.Main
             "Maybe yes, maybe no, I can't be certain.",
             "Ehm.. Ehmmm... Yes???",
             "No, no, no, no pls :sob:",
-            "To be or not to be, *that's* the question!"
+            "To be or not to be, *that's* the question!",
+            "Ask that your waifu, you weeb"
         };
 
         public static string[] railgun =
@@ -188,7 +246,17 @@ namespace DiscordBot.Main
             "Why don't we do those childish things somewhere else?",
             "Shhh, the grownups are talking.",
             "How do you even words?",
-            "Ehhhmmmmm.... but why though?"
+            "Ehhhmmmmm.... but why though?",
+            "Did you have to say that in such a weird way?",
+            "Sooooooo.... Rainbows?",
+            "Praise the sun!",
+            "I need some good food to digest that...",
+            ":heart: Praise neko-sama :heart:",
+            "If that really is what you want...",
+            "Go to www.ponyhorses.com for some good vids",
+            "Shut up, I don't talk to virgins on the internet",
+            "I don't want to talk about that right now...",
+            "I dare you: clownsong.com"
         };
 
         public static string[] money =
@@ -213,7 +281,8 @@ namespace DiscordBot.Main
             @"Main\sun\sun9.png",
             @"Main\sun\sun10.png",
             @"Main\sun\sun11.png",
-            @"Main\sun\sun12.png"
+            @"Main\sun\sun12.png",
+            @"Main\sun\sun13.jpg"
         };
 
         public static string[] topLists =
