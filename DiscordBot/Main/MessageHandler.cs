@@ -64,8 +64,7 @@ namespace DiscordBot.Main
                 if (e.Message.Text.ToLower().Split(' ').Contains("ded") || e.Message.Text.ToLower().Split(' ').Contains("*ded*") && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
-                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                    Console.WriteLine(str);
+                    MyBot.Log(str, e.Server.Name);
                     int i;
                     do
                     {
@@ -85,16 +84,14 @@ namespace DiscordBot.Main
                     kysLock = i;
                     await e.Message.Channel.SendMessage(Responses.kys[i]);
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
-                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                    Console.WriteLine(str);
+                    MyBot.Log(str, e.Server.Name);
                     return;
                 }
                 if (e.Message.Text.ToLower().Split(' ').Contains("lenny"))
                 {
                     await e.Message.Channel.SendMessage("( ͡° ͜ʖ ͡°)");
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
-                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                    Console.WriteLine(str);
+                    MyBot.Log(str, e.Server.Name);
                     return;
                 }
                 string[] greetings = { "hello", "hi", "hai" };
@@ -110,8 +107,7 @@ namespace DiscordBot.Main
                     if (e.Message.User.Id == Constants.NYAid) s += " :heart:";
                     await e.Message.Channel.SendMessage(s);
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
-                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                    Console.WriteLine(str);
+                    MyBot.Log(str, e.Server.Name);
                     return;
                 }
                 if(e.Message.Text.Split(' ')[0] == "\\o/")
@@ -173,10 +169,28 @@ namespace DiscordBot.Main
                 {
                     counter++;
                 }
-                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving message as " + counter + ".jpg";
-                File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                Console.WriteLine(str);
+                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving " + e.User.Name + "'s message as " + counter + ".jpg";
+                MyBot.Log(str, e.Server.Name);
                 SaveFile(counter.ToString() + ".jpg", e.Message.Attachments.ElementAt(0).Url);
+            }
+            if(e.User.Id == Constants.BONFIREid && e.Message.Text.Length > 25)
+            {
+                int i;
+                var s = e.Message.Text.Split(' ');
+                if (!Int32.TryParse(s.ElementAt(s.Count()-3), out i))
+                {
+                    return;
+                }
+                if(i%100 == 0)
+                {
+                    await e.Channel.SendMessage("Congratulations on your nolife behaviour!!!");
+                    return;
+                }
+                if(i%25 == 0)
+                {
+                    await e.Channel.SendMessage("Whyyyy person? Why dont you like **me** more?");
+                    return;
+                }
             }
             if (e.Message.User.Id == Constants.WIZZid)
             {

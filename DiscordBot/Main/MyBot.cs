@@ -32,6 +32,7 @@ namespace DiscordBot.Main
         private int kysLock = -1;
         private int cureLock = -1;
         private int dedLock = -1;
+        private int loopLock = -1;
 
         // Constructor
         public MyBot()
@@ -55,7 +56,7 @@ namespace DiscordBot.Main
             // List of commands
             commands.CreateCommand("60fps")
                 .Alias("60")
-                .Description("<number\n\tPrint a pic of the one true Biribiri")
+                .Description("\n\tCure cancer by posting a 60fps gif")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await CureCancer(e));
 
@@ -80,7 +81,7 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Cencored(e));
 
             commands.CreateCommand("choose")
-                .Description("<option1> {<;option2>}\n\tLet Biribiri choose one from your options")
+                .Description("<option1> {<, option2>}\n\tLet Biribiri choose one from your options")
                 .Parameter("arguments", ParameterType.Unparsed)
                 .Do(async (e) => await Choose(e));
 
@@ -151,6 +152,11 @@ namespace DiscordBot.Main
                 .Parameter("words", ParameterType.Unparsed)
                 .Do(async (e) => await List(e));
 
+            commands.CreateCommand("loop")
+                .Description("\n\tLoop-da-loopy-loop!")
+                .Parameter("words", ParameterType.Unparsed)
+                .Do(async (e) => await Loop(e));
+
             commands.CreateCommand("money")
                 .Description("\n\tPrint money")
                 .Parameter("null", ParameterType.Unparsed)
@@ -210,14 +216,13 @@ namespace DiscordBot.Main
                 if (e.Message.Text.Length > 0 && !e.User.IsBot)
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
-                    File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-                    Console.WriteLine(str);
+                    MyBot.Log(str, e.Server.Name);
                 }
             };
 
             discordClient.UserUpdated += (s, e) =>
             {
-                var message = "User changed: " + e.Before.Name + " |";
+                var message = DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") User changed: " + e.Before.Name + " |";
                 if (e.Before.Nickname != e.After.Nickname)
                 {
                     message += " nn from: " + e.Before.Nickname + " to: " + e.After.Nickname;
@@ -248,12 +253,12 @@ namespace DiscordBot.Main
                 {
                     return;
                 }
-                Console.WriteLine(message);
+                MyBot.Log(message, e.Server.Name);
             };
 
             discordClient.RoleUpdated += (s, e) =>
             {
-                var message = "Role changed:";
+                var message = DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") Role changed: " + e.Before.Name + " |";
                 if (e.Before.Permissions.Administrator != e.After.Permissions.Administrator)
                 {
                     if (e.Before.Permissions.Administrator)
@@ -392,13 +397,15 @@ namespace DiscordBot.Main
                         message += " -UseVoiceActivation";
                     else message += " +UseVoiceActivation";
                 }
-                Console.WriteLine(message);
+                MyBot.Log(message, e.Server.Name);
             };
 
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
             {
                 await discordClient.Connect("MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8", TokenType.Bot);
+                discordClient.SetGame("with Nya's heart <3");
+                discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
         }
 
@@ -606,9 +613,6 @@ namespace DiscordBot.Main
             }
             cureLock = i;
             var gif = Responses.curecancer[i];
-            var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
-            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
-            Console.WriteLine(str);
             await e.Channel.SendFile(gif);
         }
 
@@ -682,11 +686,11 @@ namespace DiscordBot.Main
                 await e.Channel.SendMessage("So lonely that you are trying to hug yourself? *hahaha*");
                 return;
             }
-            if(e.User.Id == Constants.WIZZid && e.Message.MentionedUsers.ElementAt(0).Id != Constants.NYAid)
+            /*if(e.User.Id == Constants.WIZZid && e.Message.MentionedUsers.ElementAt(0).Id != Constants.NYAid)
             {
                 await e.Channel.SendMessage(e.User.Mention + Responses.hug[num] + "NYA-CHAN, the best boyfriend in the world! :heart:");
                 return;
-            }
+            }*/
             await e.Channel.SendMessage(e.User.Mention + Responses.hug[num] + e.Message.MentionedUsers.ElementAt(0).Mention);
         }
 
@@ -707,6 +711,10 @@ namespace DiscordBot.Main
             if(param.Split(' ').Contains("nya") || param.Split(' ').Contains("biribiri") || (e.Message.MentionedUsers.Count() > 0 && (e.Message.MentionedUsers.ElementAt(0).Id == Constants.NYAid || e.Message.MentionedUsers.ElementAt(0).Id == Constants.BIRIBIRIid)))
             {
                 await Compliment(e);
+                return;
+            }
+            if (e.Message.MentionedUsers.Count() > 0 && (e.GetArg("param").Split(' ').Contains(e.User.Name) || e.Message.MentionedUsers.ElementAt(0) == e.User)) {
+                await e.Channel.SendMessage("You should not be trying to kill yourself, suicide is never the answer! :heart:");
                 return;
             }
             int i;
@@ -777,6 +785,26 @@ namespace DiscordBot.Main
                     await e.Channel.SendMessage("Stop swearing! :anger:");
                     break;
             }
+        }
+
+        private async Task Loop(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            do
+            {
+                i = rng.Next(Responses.loop.Length);
+            } while (i == loopLock);
+            loopLock = i;
+            string message = Responses.loop.ElementAt(i) + " ";
+            var m = await e.Channel.SendMessage(message);
+            for(int j = 1; j < 10; j++)
+            {
+                message += Responses.loop.ElementAt(i) + " ";
+                System.Threading.Thread.Sleep(2000);
+                await m.Edit(message);
+            }
+            await m.Delete();
         }
 
         private async Task Money(Discord.Commands.CommandEventArgs e)
@@ -866,9 +894,15 @@ namespace DiscordBot.Main
         // Methods
         private void Log(object sender, LogMessageEventArgs e)
         {
-            var str = DateTime.Now.ToShortTimeString() + " - " + e.Severity + " - " + e.Source + ") " + e.Message;
+            var str = DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Severity + " - " + e.Source + ") " + e.Message;
             File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
             Console.WriteLine(str);
+        }
+
+        public static void Log(string s, string filename)
+        {
+            File.AppendAllText(Path.Combine(@"F:\DiscordBot\log", filename + "_log.txt"), s + Environment.NewLine);
+            Console.WriteLine(s);
         }
 
         public static string FirstCharToUpper(string input)

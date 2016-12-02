@@ -47,7 +47,11 @@ namespace DiscordBot.Main
             "Imma suck your intestines out with a vacuum cleaner :smiling_imp:",
             "Imma use chaos magic to suck you into the void :smiling_imp:",
             "Imma put you in a room full of sweaty, greasy old people :smiling_imp:",
-            "Imma starve you in a completely silent room"
+            "Imma starve you in a completely silent room :smiling_imps:",
+            "Imma prepare you like I would a fish, using a lot of salt in the process :smiling_imp:",
+            "Imma slit your throat slowly, using a hot salted knife :smiling_imp:",
+            "Imma tie your limbs with a rope so tight, they will die and fall off :smiling_imp:",
+            "Imma insert superglue in every hole on your body I can find :smiling_imp:"
         };
 
         public static string[] bye =
@@ -198,7 +202,11 @@ namespace DiscordBot.Main
             " stabs a lot of people to be the only one to hug ",
             " morphs into a hugmonster and attacks ",
             " uses the whole love-bar to hug ",
-            " used special move \"HUG\" on "
+            " used special move \"HUG\" on ",
+            " orders a hug-airstrike on ",
+            "'s hugtrap was sprung by ",
+            " finished the moment with a super cute hug for ",
+            " has some cuddle-time with "
         };
 
         public static string[] kys =
@@ -209,6 +217,15 @@ namespace DiscordBot.Main
             "Don't be so mean.",
             "Transform your 'kys' in <3",
             "Sounds like you need more love in your life!"
+        };
+
+        public static string[] loop =
+        {
+            "( ͡° ͜ʖ ͡°)",
+            "¯\\_(ツ)_/¯",
+            ":heart:",
+            "¬.¬",
+            "ZZzz.."
         };
 
         public static string[] qa = 
@@ -256,7 +273,12 @@ namespace DiscordBot.Main
             "Go to www.ponyhorses.com for some good vids",
             "Shut up, I don't talk to virgins on the internet",
             "I don't want to talk about that right now...",
-            "I dare you: clownsong.com"
+            "I dare you: clownsong.com",
+            "Too soon! You have awakened me too soon!",
+            "You want *me* to talk to *you*??",
+            "Awwwn... such a cute voice",
+            "You sound like a pretty nice person",
+            "I want you to treat me like a princess, pls!"
         };
 
         public static string[] money =
@@ -282,7 +304,8 @@ namespace DiscordBot.Main
             @"Main\sun\sun10.png",
             @"Main\sun\sun11.png",
             @"Main\sun\sun12.png",
-            @"Main\sun\sun13.jpg"
+            @"Main\sun\sun13.jpg",
+            @"Main\sun\sun14.jpg"
         };
 
         public static string[] topLists =
