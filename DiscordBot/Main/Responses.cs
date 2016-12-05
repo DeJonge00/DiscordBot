@@ -32,26 +32,26 @@ namespace DiscordBot.Main
 
         public static string[] burn =
         {
-            "Imma stab you so much, even the first plague of Egypt will be nothing in comparison :smiling_imp:",
-            "Imma torture you so hard, even the devil won't want you after :smiling_imp:",
-            "Imma cut off your arms and legs and burn you in lava. Then I'll make you into a robot that can only pass butter :smiling_imp:",
-            "Imma leave you in a musquito-cage, covered in syrup, untill you've been sucked dry :smiling_imp:",
-            "Imma tickle you in 'places' untill you kill yourself :smiling_imp:",
-            "Imma let an alien hatch in you, and when it bursts out, I'll funnel it into your mouth :smiling_imp:",
-            "Imma let you get eaten by a shark, limb by limb, slowly :smiling_imp:",
-            "SECTUMSEMPRA, CRUCIO, AVADA KEDAVRA :smiling_imp:",
-            "Imma write you out of the script of life, so you will be meaninglessly forgotten :smiling_imp:",
-            "Imma strangle you while slowly inserting burning needles in your body :smiling_imp:",
-            "Imma make you cum to boku no pico :smiling_imp:",
-            "Imma code a big bug in you :smiling_imp:",
-            "Imma suck your intestines out with a vacuum cleaner :smiling_imp:",
-            "Imma use chaos magic to suck you into the void :smiling_imp:",
-            "Imma put you in a room full of sweaty, greasy old people :smiling_imp:",
-            "Imma starve you in a completely silent room :smiling_imps:",
-            "Imma prepare you like I would a fish, using a lot of salt in the process :smiling_imp:",
-            "Imma slit your throat slowly, using a hot salted knife :smiling_imp:",
-            "Imma tie your limbs with a rope so tight, they will die and fall off :smiling_imp:",
-            "Imma insert superglue in every hole on your body I can find :smiling_imp:"
+            "Imma stab you so much, even the first plague of Egypt will be nothing in comparison",
+            "Imma torture you so hard, even the devil won't want you after",
+            "Imma cut off your arms and legs and burn you in lava. Then I'll make you into a robot that can only pass butter",
+            "Imma leave you in a musquito-cage, covered in syrup, untill you've been sucked dry",
+            "Imma tickle you in 'places' untill you kill yourself",
+            "Imma let an alien hatch in you, and when it bursts out, I'll funnel it into your mouth",
+            "Imma let you get eaten by a shark, limb by limb, slowly",
+            "SECTUMSEMPRA, CRUCIO, AVADA KEDAVRA",
+            "Imma write you out of the script of life, so you will be meaninglessly forgotten",
+            "Imma strangle you while slowly inserting burning needles in your body",
+            "Imma make you cum to boku no pico",
+            "Imma code a big bug in you",
+            "Imma suck your intestines out with a vacuum cleaner",
+            "Imma use chaos magic to suck you into the void",
+            "Imma put you in a room full of sweaty, greasy old people",
+            "Imma starve you in a completely silent room",
+            "Imma prepare you like I would a fish, using a lot of salt in the process",
+            "Imma slit your throat slowly, using a hot salted knife",
+            "Imma tie your limbs with a rope so tight, they will die and fall off",
+            "Imma insert superglue in every hole on your body I can find"
         };
 
         public static string[] bye =
@@ -76,7 +76,10 @@ namespace DiscordBot.Main
             @"Main\cat\7.jpg",
             @"Main\cat\8.jpg",
             @"Main\cat\9.jpg",
-            @"Main\cat\10.jpg"
+            @"Main\cat\10.jpg",
+            @"Main\cat\11.jpg",
+            @"Main\cat\12.jpg",
+            @"Main\cat\13.jpg"
         };
 
         public static string[] compliments = {

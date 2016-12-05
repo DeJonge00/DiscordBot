@@ -400,6 +400,20 @@ namespace DiscordBot.Main
                 MyBot.Log(message, e.Server.Name);
             };
 
+            discordClient.UserJoined += async (s, e) =>
+            {
+                var str = "Welcome " + e.User.Mention + "!!! :cate:";
+                // e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
+                Log(str, e.Server.Name);
+            };
+
+            discordClient.UserLeft += async (s, e) =>
+            {
+                var str = "Im sorry to say that " + e.User.Name + " just left :sob: :sob:";
+                await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
+                Log(str, e.Server.Name);
+            };
+
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
             {
