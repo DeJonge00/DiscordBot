@@ -152,6 +152,7 @@ namespace DiscordBot.Main
 
         public static string[] dedchat =
         {
+            @"Main\dedchat\0.jpg",
             @"Main\dedchat\1.jpg",
             @"Main\dedchat\2.jpg",
             @"Main\dedchat\3.jpg",

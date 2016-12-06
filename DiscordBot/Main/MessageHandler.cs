@@ -246,7 +246,13 @@ namespace DiscordBot.Main
                 if (e.Message.MentionedUsers.ElementAt(a).Id == Constants.TRISTANid)
                     i = 3;
             var str = Responses.sun[i];
-            await e.Channel.SendFile(str);
+            try
+            {
+                await e.Channel.SendFile(str);
+            } catch
+            {
+
+            }
         }
 
         public async Task Reset(Discord.Commands.CommandEventArgs e)

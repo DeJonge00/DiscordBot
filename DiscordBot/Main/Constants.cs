@@ -8,6 +8,7 @@ namespace DiscordBot.Main
     static class Constants
     {
         // Stuff
+        public static string botToken = "MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8";
         public static string SOUNDCLOUDid = "rick-de-jonge-780921910";
         public static string GOOGLEAPIkey = "AIzaSyC6Yy9fhFLYXID-5JsomZVN2dd456D09Gk";
         public static List<ulong> ServerBlacklist = new List<ulong>();

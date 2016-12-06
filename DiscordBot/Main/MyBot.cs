@@ -417,7 +417,7 @@ namespace DiscordBot.Main
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
             {
-                await discordClient.Connect("MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8", TokenType.Bot);
+                await discordClient.Connect(Constants.botToken, TokenType.Bot);
                 discordClient.SetGame("with Nya's heart <3");
                 discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
@@ -451,7 +451,7 @@ namespace DiscordBot.Main
                     i = rng.Next(Responses.biribiri.Length);
                 } while (i == biribiriLock);
             }
-            if (i > Responses.biribiri.Count())
+            if (i > Responses.biribiri.Count() || i < 0)
             {
                 await e.Channel.SendMessage("Best I can do is " + Responses.biribiri.Count() + " ¯\\_(ツ)_/¯");
                 return;
@@ -496,7 +496,7 @@ namespace DiscordBot.Main
                     i = rng.Next(Responses.cat.Length);
                 } while (i == catLock);
             }
-            if (i > Responses.cat.Count())
+            if (i > Responses.cat.Count() || i < 0)
             {
                 await e.Channel.SendMessage("Best I can do is " + Responses.cat.Count() + " ¯\\_(ツ)_/¯");
                 return;
@@ -550,6 +550,7 @@ namespace DiscordBot.Main
                 else userID = Constants.BIRIBIRIid;
                 var param = e.GetArg("amount").Split(' ')[0];
                 if (param.Length > 0) Int32.TryParse(param, out num);
+                if (num < 1) return;
                 Message[] m = await e.Channel.DownloadMessages(num);
                 for (int i = 0; i < m.Count(); i++)
                 {
@@ -620,7 +621,7 @@ namespace DiscordBot.Main
                     i = rng.Next(Responses.curecancer.Length);
                 } while (i == cureLock);
             }
-            if (i > Responses.curecancer.Count())
+            if (i > Responses.curecancer.Count() || i < 0)
             {
                 await e.Channel.SendMessage("Best I can do is " + Responses.curecancer.Count() + " ¯\\_(ツ)_/¯");
                 return;
@@ -641,7 +642,7 @@ namespace DiscordBot.Main
                     i = rng.Next(Responses.dedchat.Length);
                 } while (i == dedLock);
             }
-            if (i > Responses.dedchat.Count())
+            if (i > Responses.dedchat.Count() || i < 0)
             {
                 await e.Channel.SendMessage("Best I can do is " + Responses.dedchat.Count() + " ¯\\_(ツ)_/¯");
                 return;
@@ -700,11 +701,6 @@ namespace DiscordBot.Main
                 await e.Channel.SendMessage("So lonely that you are trying to hug yourself? *hahaha*");
                 return;
             }
-            /*if(e.User.Id == Constants.WIZZid && e.Message.MentionedUsers.ElementAt(0).Id != Constants.NYAid)
-            {
-                await e.Channel.SendMessage(e.User.Mention + Responses.hug[num] + "NYA-CHAN, the best boyfriend in the world! :heart:");
-                return;
-            }*/
             await e.Channel.SendMessage(e.User.Mention + Responses.hug[num] + e.Message.MentionedUsers.ElementAt(0).Mention);
         }
 
@@ -737,7 +733,7 @@ namespace DiscordBot.Main
                 i = rng.Next(Responses.burn.Length);
             } while (i == kysLock);
             kysLock = i;
-            var str = Responses.burn[i];
+            var str = Responses.burn[i] + " :smiling_imp:";
             if (param.Length >= 1)
             {
                 str = param + ", " + str;
@@ -757,15 +753,7 @@ namespace DiscordBot.Main
             }
             else
             {
-                if(e.Message.MentionedUsers.ElementAt(0).Id == Constants.WIZZid && e.User.Id != Constants.NYAid)
-                {
-                    message = "Hahaha! No she is not yours";
-                }
-                else
-                {
-                    message = e.User.Mention + " gently kisses " + param.ToString() + " on the cheek <3";
-                }
-                
+                message = e.User.Mention + " gently kisses " + param.ToString() + " on the cheek <3";
             }
             await e.Channel.SendMessage(message);
         }
