@@ -60,6 +60,45 @@ namespace DiscordBot.Main
             {
                 game.GetUser(e.User.Id, e.User.Name).AddPoints(10);
                 var player = game.GetUser(e.Message.User.Id, e.Message.User.Name);
+                //Message length limit
+                string[] srvrwhite = { "test", "9CHAT" };
+                if(srvrwhite.Contains(e.Server.Name) && e.Channel.Name != "creepypastas" && e.Message.Text.Length > 400)
+                {
+                    await e.Message.Delete();
+                    return;
+                }
+
+                // Caps limit
+                double count = 0;
+                ulong[] white = { Constants.NYAid, Constants.CATEid, Constants.WIZZid };
+                if (srvrwhite.Contains(e.Server.Name) && !white.Contains(e.User.Id))
+                {
+                    foreach (char c in e.Message.Text)
+                    {
+                        if (Char.IsUpper(c))
+                            count++;
+                    }
+                    
+                    var nameUps = 0;
+                    foreach(User u in e.Message.MentionedUsers)
+                    {
+                        foreach (char c in u.Name)
+                        {
+                            if (Char.IsUpper(c))
+                                nameUps++;
+                        }
+                    }
+                    count -= nameUps;
+                    if (count >= 10 && count / (e.Message.Text.Length-nameUps) > 0.5)
+                    {
+                        await e.Message.Delete();
+                        var m = await e.Channel.SendMessage(e.User.Mention + " can you stop spamming caps pls?");
+                        System.Threading.Thread.Sleep(3000);
+                        await m.Delete();
+                        return;
+                    }
+                }
+
 
                 if (e.Message.Text.ToLower().Split(' ').Contains("ded") || e.Message.Text.ToLower().Split(' ').Contains("*ded*") && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
@@ -165,13 +204,16 @@ namespace DiscordBot.Main
             }
             if(e.Message.Attachments.Count() > 0 && !Constants.BOTids.Contains(e.User.Id) && e.User.Id != Constants.NYAid)
             {
-                while(File.Exists(Path.Combine(@"F:\DiscordBot\stats\", counter.ToString() + ".jpg")))
+                var ext = ".jpg";
+                if (e.Message.Attachments.ElementAt(0).Url.EndsWith(".gif"))
+                    ext = ".gif";
+                while(File.Exists(Path.Combine(@"F:\DiscordBot\stats\", counter.ToString() + ext)))
                 {
                     counter++;
                 }
-                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving " + e.User.Name + "'s message as " + counter + ".jpg";
+                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving " + e.User.Name + "'s message as " + counter + ext;
                 MyBot.Log(str, e.Server.Name);
-                SaveFile(counter.ToString() + ".jpg", e.Message.Attachments.ElementAt(0).Url);
+                SaveFile(counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
             }
             if(e.User.Id == Constants.BONFIREid && e.Message.Text.Length > 25)
             {
@@ -191,10 +233,6 @@ namespace DiscordBot.Main
                     await e.Channel.SendMessage("Whyyyy person? Why dont you like **me** more?");
                     return;
                 }
-            }
-            if (e.Message.User.Id == Constants.WIZZid)
-            {
-                if (MyBot.rng.Next(100) < 1) await e.Message.Channel.SendMessage(":heart:");
             }
         }
 

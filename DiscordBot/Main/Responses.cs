@@ -164,7 +164,8 @@ namespace DiscordBot.Main
             @"Main\dedchat\9.jpg",
             @"Main\dedchat\10.jpg",
             @"Main\dedchat\11.jpg",
-            @"Main\dedchat\12.gif"
+            @"Main\dedchat\12.gif",
+            @"Main\dedchat\13.jpg"
         };
 
 
@@ -221,6 +222,23 @@ namespace DiscordBot.Main
             "Don't be so mean.",
             "Transform your 'kys' in <3",
             "Sounds like you need more love in your life!"
+        };
+
+        public static string[] language =
+        {
+            @"Main\language\0.gif",
+            @"Main\language\1.png",
+            @"Main\language\2.png",
+            @"Main\language\3.png",
+            @"Main\language\4.jpg",
+            @"Main\language\5.png",
+            @"Main\language\6.jpg",
+            @"Main\language\7.jpg",
+            @"Main\language\8.jpg",
+            @"Main\language\9.jpg",
+            @"Main\language\10.gif",
+            @"Main\language\11.gif",
+            @"Main\language\12.gif"
         };
 
         public static string[] loop =

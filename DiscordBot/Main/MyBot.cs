@@ -33,6 +33,7 @@ namespace DiscordBot.Main
         private int cureLock = -1;
         private int dedLock = -1;
         private int loopLock = -1;
+        private int languageLock = -1;
 
         // Constructor
         public MyBot()
@@ -142,6 +143,12 @@ namespace DiscordBot.Main
                 .Parameter("user", ParameterType.Unparsed)
                 .Do(async (e) => await Kiss(e));
 
+            commands.CreateCommand("language")
+                .Alias("watchit")
+                .Description("<number>\n\tLet people be mindfull of their language")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Language(e));
+
             commands.CreateCommand("lenny")
                 .Description("<words to prefix>\n\tSay ( ͡° ͜ʖ ͡°)")
                 .Parameter("words", ParameterType.Unparsed)
@@ -177,9 +184,14 @@ namespace DiscordBot.Main
             //music = new MusicHandler(commands, discordClient);
 
             // Mod commands
+            commands.CreateCommand("biristate")
+                .Description("\n\tSet bb's state (mod)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await SetState(e));
+
             commands.CreateCommand("restart")
                 .Description("\n\tRestart Biribiri (mod)")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Restart(e));
 
             commands.CreateCommand("quit")
@@ -213,7 +225,7 @@ namespace DiscordBot.Main
 
             discordClient.MessageDeleted += (s, e) =>
             {
-                if (e.Message.Text.Length > 0 && !e.User.IsBot)
+                if (e.Message.Text.Length > 0 && e.Message.Text.Length < 300 && !e.User.IsBot)
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
                     MyBot.Log(str, e.Server.Name);
@@ -618,7 +630,7 @@ namespace DiscordBot.Main
             {
                 do
                 {
-                    i = rng.Next(Responses.curecancer.Length);
+                    i = rng.Next(Responses.curecancer.Count());
                 } while (i == cureLock);
             }
             if (i > Responses.curecancer.Count() || i < 0)
@@ -758,6 +770,27 @@ namespace DiscordBot.Main
             await e.Channel.SendMessage(message);
         }
 
+        private async Task Language(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.language.Length);
+                } while (i == languageLock);
+            }
+            if (i > Responses.language.Count() || i < 0)
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.language.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            languageLock = i;
+            var str = Responses.language[i];
+            await e.Channel.SendFile(str);
+        }
+
         private async Task Lenny(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -806,6 +839,7 @@ namespace DiscordBot.Main
                 System.Threading.Thread.Sleep(2000);
                 await m.Edit(message);
             }
+            System.Threading.Thread.Sleep(3000);
             await m.Delete();
         }
 
@@ -855,6 +889,30 @@ namespace DiscordBot.Main
                 Environment.Exit(0);
             }
             else await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
+        }
+
+        private async Task SetState(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if (e.User.Id == Constants.NYAid)
+            {
+                var param = e.GetArg("param");
+                Console.WriteLine("This: " + param);
+                if (param.Length > 0)
+                {
+                    try
+                    {
+                        discordClient.SetStatus(param);
+                        return;
+                    } catch
+                    {
+                        Console.WriteLine("Setting state failed");
+                    }
+                }
+                await e.Channel.SendMessage("Choose from: " + UserStatus.DoNotDisturb.Value + ", " + UserStatus.Idle.Value + ", " + UserStatus.Invisible.Value + ", " + UserStatus.Online.Value + ", please!");
+                return;
+            }
+            await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
         }
 
         private async Task Table(Discord.Commands.CommandEventArgs e)

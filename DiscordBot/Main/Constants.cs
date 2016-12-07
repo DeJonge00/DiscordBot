@@ -29,6 +29,7 @@ namespace DiscordBot.Main
         public static ulong NYAid = 143037788969762816;
         public static ulong WIZZid = 224620110277509120;
         public static ulong TRISTANid = 214708282864959489;
+        public static ulong CATEid = 183977132622348288;
 
         // Games
         // Biribiri interaction
