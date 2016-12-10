@@ -23,7 +23,7 @@ namespace DiscordBot.Main
         public static ulong TATSUMAKIid = 172002275412279296;
         public static ulong LEIABOT = 251143453365239809;
         public static ulong[] BOTids = { BIRIBIRIid, MIKIid, BONFIREid, DANTHEMANid, AUTISTICGIRLid, TATSUMAKIid, LEIABOT };
-        public static List<char> BOTprefix = new List<char> { '>', '!', '`', '-', '.' };
+        public static List<char> BOTprefix = new List<char> { '>', '!', '`', '-', '.', '$', '~' };
 
         // Special users
         public static ulong NYAid = 143037788969762816;

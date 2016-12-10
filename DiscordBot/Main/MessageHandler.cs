@@ -62,11 +62,11 @@ namespace DiscordBot.Main
                 var player = game.GetUser(e.Message.User.Id, e.Message.User.Name);
                 //Message length limit
                 string[] srvrwhite = { "test", "9CHAT" };
-                if(srvrwhite.Contains(e.Server.Name) && e.Channel.Name != "creepypastas" && e.Message.Text.Length > 400)
+                /*if(srvrwhite.Contains(e.Server.Name) && e.Channel.Name != "creepypastas" && e.Message.Text.Length > 1000)
                 {
                     await e.Message.Delete();
                     return;
-                }
+                }*/
 
                 // Caps limit
                 double count = 0;
@@ -92,9 +92,9 @@ namespace DiscordBot.Main
                     if (count >= 10 && count / (e.Message.Text.Length-nameUps) > 0.5)
                     {
                         await e.Message.Delete();
-                        var m = await e.Channel.SendMessage(e.User.Mention + " can you stop spamming caps pls?");
-                        System.Threading.Thread.Sleep(3000);
-                        await m.Delete();
+                        //var m = await e.Channel.SendMessage(e.User.Mention + " can you stop spamming caps pls?");
+                        //System.Threading.Thread.Sleep(3000);
+                        //await m.Delete();
                         return;
                     }
                 }
@@ -211,7 +211,7 @@ namespace DiscordBot.Main
                 {
                     counter++;
                 }
-                var str = e.Message.Timestamp.ToShortTimeString() + ") Saving " + e.User.Name + "'s message as " + counter + ext;
+                var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") Saving " + e.User.Name + "'s picture as " + counter + ext;
                 MyBot.Log(str, e.Server.Name);
                 SaveFile(counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
             }

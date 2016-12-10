@@ -68,7 +68,7 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("bye")
                 .Description("<user> \n\tSay goodbye to someone")
-                .Parameter("user", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Bye(e));
 
             commands.CreateCommand("cat")
@@ -78,22 +78,22 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("censored")
                 .Description("<message>\n\tCensor your own words")
-                .Parameter("text", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Cencored(e));
 
             commands.CreateCommand("choose")
                 .Description("<option1> {<, option2>}\n\tLet Biribiri choose one from your options")
-                .Parameter("arguments", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Choose(e));
 
             commands.CreateCommand("coinflip")
                 .Description("<heads | tails>\n\tFlip a coin with a slight chance of railgun")
-                .Parameter("choice", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Coinflip(e));
 
             commands.CreateCommand("compliment")
                 .Description("<user>\n\tGive someone a compliment")
-                .Parameter("user", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Compliment(e));
 
             commands.CreateCommand("del")
@@ -110,37 +110,43 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("echo")
                 .Description("<message>\n\tEcho the message")
-                .Parameter("toEcho", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Echo(e));
+
+            commands.CreateCommand("echoelse")
+                .Alias("echo2")
+                .Description("<channel> <chat> <message>\n\tEcho the message in *channel - chat*")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await EchoElsewhere(e));
 
             commands.CreateCommand("face")
                 .Description("<words to prefix>\n\tSay (๑･̑◡･̑๑)")
-                .Parameter("words", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Face(e));
 
             commands.CreateCommand("help")
                 .Description("\n\tHelp via direct messages")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Help(e));
 
             commands.CreateCommand("hug")
                 .Description("<user>\n\tHug a user")
-                .Parameter("user", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Hug(e));
 
             commands.CreateCommand("karma")
-                .Description("<user>\n\tCheck your biri karma")
-                .Parameter("user", ParameterType.Unparsed)
+                .Description("<user>\n\tCheck your biri karma (WIP)")
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Karma(e));
 
             commands.CreateCommand("kill")
                 .Description("<user>\n\tThreathen someone")
-                .Parameter("user", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Kill(e));
 
             commands.CreateCommand("kiss")
                 .Description("<user>\n\tKiss someone")
-                .Parameter("user", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Kiss(e));
 
             commands.CreateCommand("language")
@@ -151,32 +157,32 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("lenny")
                 .Description("<words to prefix>\n\tSay ( ͡° ͜ʖ ͡°)")
-                .Parameter("words", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Lenny(e));
 
             commands.CreateCommand("list")
                 .Description("<bestgirl | anime>\n\tPrint a top-list")
-                .Parameter("words", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await List(e));
 
             commands.CreateCommand("loop")
                 .Description("\n\tLoop-da-loopy-loop!")
-                .Parameter("words", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Loop(e));
 
             commands.CreateCommand("money")
                 .Description("\n\tPrint money")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Money(e));
 
             commands.CreateCommand("ping")
                 .Description("\n\tGet your ping (and its a game!)")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Ping(e));
 
             commands.CreateCommand("table")
                 .Description("\n\tPrint tableflip / unflip")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Table(e));
 
             game = new Game(commands, discordClient);
@@ -196,7 +202,7 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("quit")
                 .Description("\n\tPut her to sleep (mod)")
-                .Parameter("null", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Quit(e));
 
             commands.CreateCommand("ban")
@@ -206,7 +212,7 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("clean")
                 .Description("\n\tRemove messages of Biribiri (mod)")
-                .Parameter("amount", ParameterType.Unparsed)
+                .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Clean(e));
 
             discordClient.MessageReceived += async (s, e) =>
@@ -416,14 +422,14 @@ namespace DiscordBot.Main
             {
                 var str = "Welcome " + e.User.Mention + "!!! :cate:";
                 // e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
-                Log(str, e.Server.Name);
+                Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + "Welcome " + e.User.Name + "!!! :cate:", e.Server.Name);
             };
 
             discordClient.UserLeft += async (s, e) =>
             {
                 var str = "Im sorry to say that " + e.User.Name + " just left :sob: :sob:";
                 await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
-                Log(str, e.Server.Name);
+                Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
             };
 
             // Connecting to discord server
@@ -431,7 +437,7 @@ namespace DiscordBot.Main
             {
                 await discordClient.Connect(Constants.botToken, TokenType.Bot);
                 discordClient.SetGame("with Nya's heart <3");
-                discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
+                discordClient.SetStatus(UserStatus.Invisible.Value);
             });
         }
 
@@ -476,7 +482,7 @@ namespace DiscordBot.Main
         private async Task Bye(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var param = e.GetArg("user");
+            var param = e.GetArg("param");
             int i;
             do
             {
@@ -527,7 +533,7 @@ namespace DiscordBot.Main
         private async Task Choose(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var param = e.GetArg("arguments").Split(',');
+            var param = e.GetArg("param").Split(',');
             if(param.Length <= 0)
             {
                 await e.Channel.SendMessage("You will have to list some options for me to choose from...");
@@ -560,7 +566,7 @@ namespace DiscordBot.Main
                 ulong userID;
                 if (user.Count() > 0) userID = user[0].Id;
                 else userID = Constants.BIRIBIRIid;
-                var param = e.GetArg("amount").Split(' ')[0];
+                var param = e.GetArg("param").Split(' ')[0];
                 if (param.Length > 0) Int32.TryParse(param, out num);
                 if (num < 1) return;
                 Message[] m = await e.Channel.DownloadMessages(num);
@@ -580,7 +586,7 @@ namespace DiscordBot.Main
             var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
             File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
             Console.WriteLine(str);
-            var param = e.GetArg("choice").Split(' ');
+            var param = e.GetArg("param").Split(' ');
             var n = rng.Next(100);
             if (param.Length <= 0 || n <= 4 || !(param[0].ToLower() == "heads" || param[0].ToLower() == "tails"))
             {
@@ -606,7 +612,7 @@ namespace DiscordBot.Main
         private async Task Compliment(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var param = e.GetArg("user");
+            var param = e.GetArg("param");
             int i;
             do
             {
@@ -667,13 +673,34 @@ namespace DiscordBot.Main
         private async Task Echo(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var param = e.GetArg("toEcho");
+            var param = e.GetArg("param");
             if (param.Length <= 0)
             {
                 await e.Channel.SendMessage("...");
                 return;
             }
             await e.Channel.SendMessage(param.ToString());
+        }
+
+        private async Task EchoElsewhere(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            var param = e.GetArg("param").Split(' ');
+            if (param.Length < 3)
+            {
+                await e.Channel.SendMessage("...");
+                return;
+            }
+            var message = String.Join(" ", param.Skip(2));
+            try
+            {
+                await discordClient.FindServers(param.ElementAt(0)).First().FindChannels(param.ElementAt(1)).First().SendMessage(message);
+            } catch
+            {
+                var m = await e.Channel.SendMessage("Channel could not be found :/");
+                System.Threading.Thread.Sleep(3000);
+                await m.Delete();
+            }
         }
 
         private async Task Delete(Discord.Commands.CommandEventArgs e)
@@ -694,11 +721,11 @@ namespace DiscordBot.Main
             } while (i == faceLock);
             faceLock = i;
             var s = Responses.faces.ElementAt(i);
-            var param = e.GetArg("words");
+            var param = e.GetArg("param");
             if (param.Length > 0) s = param + " " + s;
             await e.Channel.SendMessage(s);
         }
-
+        
         private async Task Hug(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -729,7 +756,7 @@ namespace DiscordBot.Main
         private async Task Kill(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            var param = e.GetArg("user");
+            var param = e.GetArg("param");
             if(param.Split(' ').Contains("nya") || param.Split(' ').Contains("biribiri") || (e.Message.MentionedUsers.Count() > 0 && (e.Message.MentionedUsers.ElementAt(0).Id == Constants.NYAid || e.Message.MentionedUsers.ElementAt(0).Id == Constants.BIRIBIRIid)))
             {
                 await Compliment(e);
@@ -758,7 +785,7 @@ namespace DiscordBot.Main
         {
             await e.Message.Delete();
             var message = "";
-            var param = e.GetArg("user");
+            var param = e.GetArg("param");
             if (param.Length <= 0)
             {
                 message = "Are you trying to kiss yourself or something?\nWeirdo";
@@ -795,14 +822,14 @@ namespace DiscordBot.Main
         {
             await e.Message.Delete();
             var s = "( ͡° ͜ʖ ͡°)";
-            var param = e.GetArg("words");
+            var param = e.GetArg("param");
             if (param.Length > 0) s = param + " " + s;
             await e.Channel.SendMessage(s);
         }
 
         private async Task List(Discord.Commands.CommandEventArgs e)
         {
-            var param = e.GetArg("words").Split(' ');
+            var param = e.GetArg("param").Split(' ');
             if(param.Length <= 0)
             {
                 await e.Channel.SendMessage("What kind of List do you want?");
@@ -897,7 +924,6 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 var param = e.GetArg("param");
-                Console.WriteLine("This: " + param);
                 if (param.Length > 0)
                 {
                     try
@@ -947,7 +973,7 @@ namespace DiscordBot.Main
             {
                 s += commands.AllCommands.ElementAt(i).Text + " " + commands.AllCommands.ElementAt(i).Description + "\n";
             }
-            s += "```";
+            s += "```\n*If anything does not seem to work as it is supposed to: msg NYA-CHAN*";
             await e.User.SendMessage(s);
         }
 

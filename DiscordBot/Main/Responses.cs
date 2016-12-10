@@ -119,16 +119,12 @@ namespace DiscordBot.Main
             @"Main\gif\8.gif",
             @"Main\gif\9.gif",
             @"Main\gif\10.gif",
-            @"Main\gif\11.gif",
             @"Main\gif\12.gif",
             @"Main\gif\13.gif",
             @"Main\gif\14.gif",
             @"Main\gif\15.gif",
-            @"Main\gif\16.gif",
             @"Main\gif\17.gif",
-            @"Main\gif\18.gif",
             @"Main\gif\19.gif",
-            @"Main\gif\20.gif",
             @"Main\gif\21.gif",
             @"Main\gif\22.gif"
         };
