@@ -2,9 +2,6 @@
 using Discord.Commands;
 using Discord.Audio;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NAudio.Wave;
 
@@ -12,6 +9,7 @@ namespace DiscordBot.Main.Music
 {
     class MusicHandler
     {
+        
         private CommandService commands;
         private DiscordClient discordClient;
         private IAudioClient discordAudio;
@@ -55,7 +53,7 @@ namespace DiscordBot.Main.Music
                     await stop(e);
                     return;
                 case "play":
-                    await SendAudio("");
+                    SendAudio(@"C:\Users\dejon\Music\DiscordBot\99.mp3");
                     return;
                 default:
                     await e.Channel.SendMessage("Stop using magic like " + param[0]);
@@ -72,7 +70,7 @@ namespace DiscordBot.Main.Music
                 return;
             }
             await discordAudio.Disconnect();
-            await e.Channel.SendMessage("I quit sining! :angry:");
+            await e.Channel.SendMessage("I quit singing! :angry:");
         }
 
         private async Task summon(CommandEventArgs e)
@@ -104,11 +102,8 @@ namespace DiscordBot.Main.Music
             await e.Channel.SendMessage("Help not available :/");
         }
 
-        public async Task SendAudio(string filePath)
+        public void SendAudio(string filePath)
         {
-            playing = true;
-            Console.WriteLine("Play command used");
-            filePath = @"C:\Users\dejon\Music\DiscordBot\99.mp3";
             var channelCount = discordClient.GetService<AudioService>().Config.Channels; // Get the number of AudioChannels our AudioService has been configured to use.
             var OutFormat = new WaveFormat(48000, 16, channelCount); // Create a new Output Format, using the spec that Discord will accept, and with the number of channels that our client supports.
             using (var MP3Reader = new Mp3FileReader(filePath)) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
@@ -118,6 +113,7 @@ namespace DiscordBot.Main.Music
                 int blockSize = OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
                 byte[] buffer = new byte[blockSize];
                 int byteCount;
+
                 while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
                 {
                     if (byteCount < blockSize)
@@ -129,6 +125,7 @@ namespace DiscordBot.Main.Music
                     discordAudio.Send(buffer, 0, blockSize); // Send the buffer to Discord
                 }
             }
+
         }
     }
 }

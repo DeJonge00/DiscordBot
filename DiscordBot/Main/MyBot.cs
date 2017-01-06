@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Discord.Modules;
 using DiscordBot.Main.Music;
 using System.IO;
 using System.Collections.Generic;
@@ -34,6 +33,8 @@ namespace DiscordBot.Main
         private int dedLock = -1;
         private int loopLock = -1;
         private int languageLock = -1;
+        private int ythoLock = -1;
+        private int cuddleLock = -1;
 
         // Constructor
         public MyBot()
@@ -95,6 +96,11 @@ namespace DiscordBot.Main
                 .Description("<user>\n\tGive someone a compliment")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Compliment(e));
+
+            commands.CreateCommand("cuddle")
+                .Description("<number>\n\tRandom cuddle gif!!!")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Cuddle(e));
 
             commands.CreateCommand("del")
                 .Alias("delete")
@@ -180,16 +186,33 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Ping(e));
 
+            commands.CreateCommand("picture")
+                .Alias("pp")
+                .Description("<user | servername>\n\tGet the picture of the mentioned person")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Picture(e));
+
             commands.CreateCommand("table")
                 .Description("\n\tPrint tableflip / unflip")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Table(e));
 
+            commands.CreateCommand("y tho")
+                .Alias("ytho")
+                .Description("<number>\n\tBut... why though??")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await YTho(e));
+
             game = new Game(commands, discordClient);
             handler = new MessageHandler(commands, game);
-            //music = new MusicHandler(commands, discordClient);
+            music = new MusicHandler(commands, discordClient);
 
             // Mod commands
+            commands.CreateCommand("birigame")
+                .Description("\n\tSet bb's game (mod)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await SetGame(e));
+
             commands.CreateCommand("biristate")
                 .Description("\n\tSet bb's state (mod)")
                 .Parameter("param", ParameterType.Unparsed)
@@ -199,6 +222,16 @@ namespace DiscordBot.Main
                 .Description("\n\tRestart Biribiri (mod)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Restart(e));
+
+            commands.CreateCommand("spam")
+                .Description("<channel> <amount>\n\tSpam a channel XD (mod)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await Spam(e));
+
+            commands.CreateCommand("type")
+                .Description("<channel> <amount>\n\tSend ***istyping*** to a channel (mod)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await Type(e));
 
             commands.CreateCommand("quit")
                 .Description("\n\tPut her to sleep (mod)")
@@ -217,6 +250,10 @@ namespace DiscordBot.Main
 
             discordClient.MessageReceived += async (s, e) =>
             {
+                if(e.Channel.IsPrivate && e.Message.Text.Count() > 0)
+                {
+                    Log(e.User.Name + " send dm containing: " + e.Message.Text, "privateMessages");
+                }
                 if (game.guessingGame != null && game.guessingGame.running && e.Channel == game.guessingGame.channel)
                 {
                     await game.guessingGame.Handle(e);
@@ -231,7 +268,7 @@ namespace DiscordBot.Main
 
             discordClient.MessageDeleted += (s, e) =>
             {
-                if (e.Message.Text.Length > 0 && e.Message.Text.Length < 300 && !e.User.IsBot)
+                if (e.Message.Text != null && e.Message.Text.Length > 0 && e.Message.Text.Length < 300 && !e.User.IsBot)
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
                     MyBot.Log(str, e.Server.Name);
@@ -427,7 +464,7 @@ namespace DiscordBot.Main
 
             discordClient.UserLeft += async (s, e) =>
             {
-                var str = "Im sorry to say that " + e.User.Name + " just left :sob: :sob:";
+                var str = "Im sorry to say that \"" + e.User.Name + "\" just left :sob: :sob:";
                 await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
                 Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
             };
@@ -436,7 +473,7 @@ namespace DiscordBot.Main
             discordClient.ExecuteAndWait(async () =>
             {
                 await discordClient.Connect(Constants.botToken, TokenType.Bot);
-                discordClient.SetGame("with Nya's heart <3");
+                discordClient.SetGame("¯\\__(ツ)__/¯");
                 discordClient.SetStatus(UserStatus.Invisible.Value);
             });
         }
@@ -628,6 +665,31 @@ namespace DiscordBot.Main
             await e.Channel.SendMessage(str);
         }
 
+        private async Task Cuddle(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.cuddle.Length);
+                } while (i == cuddleLock);
+            }
+            if (i > Responses.cuddle.Count() || i < 0)
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.cuddle.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            cuddleLock = i;
+            if(e.Message.MentionedUsers.Count() > 0)
+            {
+                await e.Channel.SendMessage("A special cuddle for you " + e.Message.MentionedUsers.ElementAt(0).Mention);
+            }
+            var str = Responses.cuddle[i];
+            await e.Channel.SendFile(str);
+        }
+
         private async Task CureCancer(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -659,6 +721,16 @@ namespace DiscordBot.Main
                 {
                     i = rng.Next(Responses.dedchat.Length);
                 } while (i == dedLock);
+            }
+            if(i == -1)
+            {
+                var m = await e.Channel.SendMessage(Responses.soundofsilence[0]);
+                for(int j = 0; j < Responses.soundofsilence.Count(); j++)
+                {
+                    System.Threading.Thread.Sleep(3000);
+                    await m.Edit(Responses.soundofsilence[j]);
+                }
+                return;
             }
             if (i > Responses.dedchat.Count() || i < 0)
             {
@@ -706,6 +778,7 @@ namespace DiscordBot.Main
         private async Task Delete(Discord.Commands.CommandEventArgs e)
         {
             int i = 15;
+            await e.Channel.SendIsTyping();
             Int32.TryParse(e.GetArg("param").Split().ElementAt(0), out i);
             System.Threading.Thread.Sleep(100*i);
             await e.Message.Delete();
@@ -905,6 +978,28 @@ namespace DiscordBot.Main
             }
         }
 
+        private async Task Picture(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if(e.Message.MentionedUsers.Count() > 0)
+            {
+                var name = e.Message.MentionedUsers.ElementAt(0).Name + ".jpg";
+                MessageHandler.SaveFile(@"F:\DiscordBot\pp\", name, e.Message.MentionedUsers.ElementAt(0).AvatarUrl);
+                await e.Channel.SendFile(Path.Combine(@"F:\DiscordBot\pp\",  name));
+                return;
+            }
+            if(e.GetArg("param").Length > 0 && e.GetArg("param") == e.Server.Name)
+            {
+                var name = e.Server.Name + ".jpg";
+                Console.WriteLine(e.Server.Name);
+                try { MessageHandler.SaveFile(@"F:\DiscordBot\pp\", name, e.Server.IconUrl); }
+                catch (Exception ex) { Console.WriteLine(ex.StackTrace); }
+                await e.Channel.SendFile(Path.Combine(@"F:\DiscordBot\pp\", name));
+                return;
+            }
+            await e.Channel.SendMessage("Give me a valid user or the servername as parameter pl0x");
+        }
+
         private async Task Restart(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -916,6 +1011,29 @@ namespace DiscordBot.Main
                 Environment.Exit(0);
             }
             else await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
+        }
+
+        private async Task SetGame(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if (e.User.Id == Constants.NYAid)
+            {
+                var param = e.GetArg("param");
+                if (param.Length > 0)
+                {
+                    try
+                    {
+                        discordClient.SetGame(param);
+                        return;
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Setting game failed");
+                    }
+                }
+                return;
+            }
+            await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
         }
 
         private async Task SetState(Discord.Commands.CommandEventArgs e)
@@ -941,11 +1059,94 @@ namespace DiscordBot.Main
             await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
         }
 
+        private async Task Spam(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if (e.User.Id == Constants.NYAid)
+            {
+                var param = e.GetArg("param");
+                if (param.Count() <= 0)
+                    return;
+                try
+                {
+                    var amount = 1;
+                    var messages = new List<Message>();
+                    Int32.TryParse(param, out amount);
+                    for(int i=0;i<amount;i++)
+                        foreach (Channel ch in e.Server.TextChannels)
+                            messages.Add(await ch.SendMessage("SPAM LOL"));
+                    System.Threading.Thread.Sleep(amount*1500);
+                    foreach (Message m in messages)
+                        await m.Delete();
+                } catch
+                {
+                    await e.Channel.SendMessage("Spamming failed");
+                }
+            }
+        }
+
+        private async Task Type(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if (e.User.Id == Constants.NYAid)
+            {
+                var param = e.GetArg("param").Split(' ');
+                if (param.Count() <= 2)
+                    return;
+                try
+                {
+                    var amount = 1;
+                    var messages = new List<Message>();
+                    Int32.TryParse(param[0], out amount);
+                    for (int i = 0; i < amount; i++)
+                    {
+                        try
+                        {
+                            await discordClient.FindServers(param[1]).First().FindChannels(param[2]).First().SendIsTyping();
+                            System.Threading.Thread.Sleep(9000);
+                        } catch
+                        {
+                            Console.WriteLine("Channel not found");
+                            return;
+                        }
+                    }
+                    
+                    foreach (Message m in messages)
+                        await m.Delete();
+                }
+                catch
+                {
+                    await e.Channel.SendMessage("Spamming failed");
+                }
+            }
+        }
+
         private async Task Table(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
             var s = "(╯°□°）╯︵ ┻━┻\n┬─┬﻿ ノ( ゜-゜ノ)";
             await e.Channel.SendMessage(s);
+        }
+
+        private async Task YTho(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i;
+            if (!Int32.TryParse(e.GetArg("param"), out i))
+            {
+                do
+                {
+                    i = rng.Next(Responses.ytho.Length);
+                } while (i == ythoLock);
+            }
+            if (i > Responses.ytho.Count() || i < 0)
+            {
+                await e.Channel.SendMessage("Best I can do is " + Responses.ytho.Count() + " ¯\\_(ツ)_/¯");
+                return;
+            }
+            ythoLock = i;
+            var str = Responses.ytho[i];
+            await e.Channel.SendFile(str);
         }
 
         private async Task Quit(Discord.Commands.CommandEventArgs e)

@@ -69,8 +69,8 @@ namespace DiscordBot.Main
                 }*/
 
                 // Caps limit
-                double count = 0;
-                ulong[] white = { Constants.NYAid, Constants.CATEid, Constants.WIZZid };
+                /*double count = 0;
+                ulong[] white = { Constants.NYAid, Constants.CATEid };
                 if (srvrwhite.Contains(e.Server.Name) && !white.Contains(e.User.Id))
                 {
                     foreach (char c in e.Message.Text)
@@ -97,10 +97,12 @@ namespace DiscordBot.Main
                         //await m.Delete();
                         return;
                     }
-                }
+                }*/
 
-
-                if (e.Message.Text.ToLower().Split(' ').Contains("ded") || e.Message.Text.ToLower().Split(' ').Contains("*ded*") && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
+                if (e.Message.User.Id == Constants.WIZZid)
+                    return;
+                /*
+                if (e.Message.Text.ToLower() == "ded" || e.Message.Text.ToLower() == "*ded*" && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
                     MyBot.Log(str, e.Server.Name);
@@ -113,7 +115,7 @@ namespace DiscordBot.Main
                     await e.Message.Channel.SendMessage(Responses.ded[i]);
                     return;
                 }
-                if ((e.Message.Text.ToLower().Split(' ').Contains("kys") || e.Message.Text.ToLower() == "kill yourself") && (e.Server.Name != "9CHAT" || MyBot.rng.Next(100) < 25) && !e.Message.IsMentioningMe())
+                if ((e.Message.Text.ToLower() == "kys" || e.Message.Text.ToLower() == "kill yourself") && (e.Server.Name != "9CHAT" || MyBot.rng.Next(100) < 25) && !e.Message.IsMentioningMe())
                 {
                     int i;
                     do
@@ -126,15 +128,8 @@ namespace DiscordBot.Main
                     MyBot.Log(str, e.Server.Name);
                     return;
                 }
-                if (e.Message.Text.ToLower().Split(' ').Contains("lenny"))
-                {
-                    await e.Message.Channel.SendMessage("( ͡° ͜ʖ ͡°)");
-                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
-                    MyBot.Log(str, e.Server.Name);
-                    return;
-                }
                 string[] greetings = { "hello", "hi", "hai" };
-                if (greetings.Contains(e.Message.Text.Split()[0].ToLower()) && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
+                if (greetings.Contains(e.Message.Text.Split()[0].ToLower()) && /*(e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
                     int i;
                     do
@@ -148,8 +143,15 @@ namespace DiscordBot.Main
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
                     MyBot.Log(str, e.Server.Name);
                     return;
+                }*/
+                if (e.Message.Text.ToLower().Split(' ').Contains("lenny"))
+                {
+                    await e.Message.Channel.SendMessage("( ͡° ͜ʖ ͡°)");
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " said: " + e.Message.Text;
+                    MyBot.Log(str, e.Server.Name);
+                    return;
                 }
-                if(e.Message.Text.Split(' ')[0] == "\\o/")
+                if (e.Message.Text.Split(' ')[0] == "\\o/")
                 {
                     await PraiseTheSun(e);
                     return;
@@ -213,8 +215,8 @@ namespace DiscordBot.Main
                 }
                 var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") Saving " + e.User.Name + "'s picture as " + counter + ext;
                 MyBot.Log(str, e.Server.Name);
-                SaveFile(counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
-            }
+                SaveFile(@"F:\DiscordBot\stats\", counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
+            }/*
             if(e.User.Id == Constants.BONFIREid && e.Message.Text.Length > 25)
             {
                 int i;
@@ -233,7 +235,7 @@ namespace DiscordBot.Main
                     await e.Channel.SendMessage("Whyyyy person? Why dont you like **me** more?");
                     return;
                 }
-            }
+            }*/
         }
 
         public void Abort()
@@ -337,9 +339,9 @@ namespace DiscordBot.Main
             }
         }
 
-        private void SaveFile(string name, string url)
+        public static void SaveFile(string p, string name, string url)
         {
-            var path = Path.Combine(@"F:\DiscordBot\stats\", name);
+            var path = Path.Combine(p, name);
 
             byte[] imageBytes;
             HttpWebRequest imageRequest = (HttpWebRequest)WebRequest.Create(url);
