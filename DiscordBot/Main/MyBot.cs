@@ -35,6 +35,7 @@ namespace DiscordBot.Main
         private int languageLock = -1;
         private int ythoLock = -1;
         private int cuddleLock = -1;
+        private int singLock = -1;
 
         // Constructor
         public MyBot()
@@ -192,6 +193,11 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Picture(e));
 
+            commands.CreateCommand("sing")
+                .Description("\n\tLet me sing a song for you")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Sing(e));
+
             commands.CreateCommand("table")
                 .Description("\n\tPrint tableflip / unflip")
                 .Parameter("param", ParameterType.Unparsed)
@@ -229,7 +235,7 @@ namespace DiscordBot.Main
                 .Do(async e => await Spam(e));
 
             commands.CreateCommand("type")
-                .Description("<channel> <amount>\n\tSend ***istyping*** to a channel (mod)")
+                .Description("<amount> <server> <channel>\n\tSend ***istyping*** to a channel (mod)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Type(e));
 
@@ -722,16 +728,6 @@ namespace DiscordBot.Main
                     i = rng.Next(Responses.dedchat.Length);
                 } while (i == dedLock);
             }
-            if(i == -1)
-            {
-                var m = await e.Channel.SendMessage(Responses.soundofsilence[0]);
-                for(int j = 0; j < Responses.soundofsilence.Count(); j++)
-                {
-                    System.Threading.Thread.Sleep(3000);
-                    await m.Edit(Responses.soundofsilence[j]);
-                }
-                return;
-            }
             if (i > Responses.dedchat.Count() || i < 0)
             {
                 await e.Channel.SendMessage("Best I can do is " + Responses.dedchat.Count() + " ¯\\_(ツ)_/¯");
@@ -778,7 +774,6 @@ namespace DiscordBot.Main
         private async Task Delete(Discord.Commands.CommandEventArgs e)
         {
             int i = 15;
-            await e.Channel.SendIsTyping();
             Int32.TryParse(e.GetArg("param").Split().ElementAt(0), out i);
             System.Threading.Thread.Sleep(100*i);
             await e.Message.Delete();
@@ -1057,6 +1052,55 @@ namespace DiscordBot.Main
                 return;
             }
             await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
+        }
+
+        private async Task Sing(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            int i = 0;
+            if (e.GetArg("param").Length > 0)
+            {
+                if (!Int32.TryParse(e.GetArg("param"), out i))
+                {
+                    switch (e.GetArg("param"))
+                    {
+                        case "sos":
+                        case "sound of silence":
+                            i = 0;
+                            break;
+                        case "pretender":
+                            i = 1;
+                            break;
+                        case "pomf":
+                        case "pomf pomf":
+                            i = 2;
+                            break;
+                        default:
+                            await e.Channel.SendMessage("I don't know that song...");
+                            return;
+                    }
+                }
+            }
+            else
+            {
+                do
+                {
+                    i = rng.Next(Responses.songs.Length);
+                } while (i == singLock);
+            }
+            singLock = i;
+            var song = Responses.songs[i].Split('|');
+            var m = await e.Channel.SendMessage(song[0]);
+            for (int j = 1; j < song.Count(); j++)
+            {
+                System.Threading.Thread.Sleep(3000);
+                await m.Edit(song[j]);
+            }
+            System.Threading.Thread.Sleep(3000);
+            await m.Edit("*bows*");
+            System.Threading.Thread.Sleep(5000);
+            await m.Delete();
+            return;
         }
 
         private async Task Spam(Discord.Commands.CommandEventArgs e)

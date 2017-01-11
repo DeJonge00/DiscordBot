@@ -376,49 +376,17 @@ namespace DiscordBot.Main
             @"Main\ytho\2.gif"
         };
 
-        public static string[] soundofsilence =
+        /*
+         * sound of silence
+         * the pretender
+         * pomf pomf
+         */
+
+        public static string[] songs =
         {
-            "Hello darkness, my old friend,",
-            "I've come to talk with you again,",
-            "Because a vision softly creeping,",
-            "Left its seeds while I was sleeping,",
-            "And the vision that was planted in my brain",
-            "Still remains",
-            "Within the sound of silence",
-            " ",
-            "In restless dreams I walked alone",
-            "Narrow streets of cobblestone,",
-            "'Neath the halo of a street lamp,",
-            "I turned my collar to the cold and damp",
-            "When my eyes were stabbed by the flash of a neon light",
-            "That split the night",
-            "And touched the sound of silence",
-            " ",
-            "And in the naked light I saw",
-            "Ten thousand people, maybe more",
-            "People talking without speaking,",
-            "People hearing without listening,",
-            "People writing songs that voices never share",
-            "And no one dared",
-            "Disturb the sound of silence",
-            " ",
-            "\"Fools\" said I,",
-            "\"You do not know, silence like a cancer grows",
-            "Hear my words that I might teach you,",
-            "Take my arms that I might reach you\"",
-            "But my words like silent raindrops fell,",
-            "And echoed",
-            "In the wells of silence",
-            " ",
-            "And the people bowed and prayed",
-            "To the neon god they made",
-            "And the sign flashed out its warning,",
-            "In the words that it was forming",
-            "And the signs said,",
-            "The words of the prophets are written on the subway walls",
-            "And tenement halls",
-            "And whisper'd in the sounds of silence",
-            "*bows*"
+            "Hello darkness, my old friend,|I've come to talk with you again,|Because a vision softly creeping,|Left its seeds while I was sleeping,|And the vision that was planted in my brain|Still remains|Within the sound of silence| |In restless dreams I walked alone|Narrow streets of cobblestone,|'Neath the halo of a street lamp,|I turned my collar to the cold and damp|When my eyes were stabbed by the flash of a neon light|That split the night|And touched the sound of silence| |And in the naked light I saw|Ten thousand people, maybe more|People talking without speaking,|People hearing without listening,|People writing songs that voices never share|And no one dared|Disturb the sound of silence| |\"Fools\" said I,|\"You do not know, silence like a cancer grows|Hear my words that I might teach you,|Take my arms that I might reach you\"|But my words like silent raindrops fell,|And echoed|In the wells of silence| |And the people bowed and prayed|To the neon god they made|And the sign flashed out its warning,|In the words that it was forming|And the signs said,|The words of the prophets are written on the subway walls|And tenement halls|And whisper'd in the sounds of silence",
+            "Keep you in the dark|You know they all pretend|Keep you in the dark|And so it all began||Send in your skeletons|Sing as their bones go marching in, again|The need you buried deep|The secrets that you keep are ever ready|Are you ready?|I'm finished making sense|Done pleading ignorance|That whole defense||Spinning infinity, boy|The wheel is spinning me|It's never-ending, never-ending|Same old story| |What if I say I'm not like the others?|What if I say I'm not just another one of your plays?|You're the pretender|What if I say I will never surrender?|What if I say I'm not like the others?|What if I say I'm not just another one of your plays?|You're the pretender|What if I say that I'll never surrender?|In time our soul untold|I'm just another soul for sale, oh well|The page is out of print|We are not permanent|We're temporary, temporary|Same old story|What if I say I'm not like the others?|What if I say I'm not just another one of your plays?|You're the pretender|What if I say that I'll never surrender?|What if I say I'm not like the others?|What if I say I'm not just another one of your plays?|You're the pretender|What if I say that I'll never surrender?",
+            "Everyone's counting on me|to cheer them up and give them lots of energy|I hope that I can help them study for their test|I'll work hard to support them and always try my best||it's so much fun to help out in the dormitory|and be a super moe and generic loli|\"I wanna do something for you\" Oniichan said|I gasped and said \"what are we going to do on the bed?\"|oh no oh no||POMF POMF! KIMOCHI|what's this sticky stuff on me?|They play with me until|I smell like salty coins and milk||Morning, everyone!|Today we will have lots of fun|UGUU am I cute?|in my favorite swimsuit||POMFPOMF wanna stay|and play the pop up pirate game?|STOP STOP touching me|it's making me feel all funny|NII CHAN I love you|but please stop smelling my pantsu|Yay yay! play with me|ah ah you make me happy||EVERYDAY POMF|EVERYTIME IS POMF|I wanna ride on nii-chan|all day long||EVERYDAY POMF|EVERYTIME IS POMF|there's just no way that thing will fit|I'll endure it||POMF POMF! KIMOCHI|but what's this sticky stuff on me?|They play with me until|I smell like salty coins and milk||Morning, everyone!|Today we will have lots of fun|UWAHN UWAHN IT'S REALLY TOUGH|NOT TO CLENCH UP MY BUTT"
         };
     }
 }
