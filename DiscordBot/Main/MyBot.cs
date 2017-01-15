@@ -478,7 +478,13 @@ namespace DiscordBot.Main
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
             {
-                await discordClient.Connect(Constants.botToken, TokenType.Bot);
+                try
+                {
+                    await discordClient.Connect(Constants.botToken, TokenType.Bot);
+                } catch
+                {
+                    Console.WriteLine("Connecting failed");
+                }
                 discordClient.SetGame("¯\\__(ツ)__/¯");
                 discordClient.SetStatus(UserStatus.Invisible.Value);
             });
