@@ -327,6 +327,41 @@ namespace DiscordBot.Main
             "€€€€€"
         };
 
+        public static string[] spell =
+        {
+            "Fireball",
+            "Frostbolt",
+            "Drain Life",
+            "Infernal Gateway",
+            "Raise Dead",
+            "Death Curse",
+            "Bonecrusher",
+            "Curse of the Leper",
+            "Baleful Transmogrification",
+            "Ecstatic Seizures",
+            "Conflagration of Doom",
+            "Pit of Shades",
+            "Forked lightning",
+            "Level 5 Railgun",
+            "Cleansing Fire",
+            "Steal Soul",
+            "Wind of Death",
+            "Doom and Darkness",
+            "Hyperbeam"
+        };
+
+        public static string[] spellresult =
+        {
+            "It's super effective!",    // Good results
+            "An accurate hit!",
+            "Target annihilated!",
+            "Obliterated!",
+            "It misfired!",             // Bad results
+            "It missed it's target!",
+            "The target was immune!",
+            "It was not very effective!"
+        };
+
         public static string[] sun =
         {
             @"Main\sun\sun1.jpg",

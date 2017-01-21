@@ -14,54 +14,36 @@ namespace DiscordBot.Main
 {
     class MessageHandler
     {
-        public Game game;
-        public bool running;
         private string statsFile = @"F:\DiscordBot\stats\interaction.bin";
-        public List<BiriInteraction> users;
         private Thread runningThread;
         private int counter = 0;
 
-        private int sunLock = -1;
-        private int kysLock = -1;
-        private int dedLock = -1;
-        private int helloLock = -1;
-        private int burnLock = -1;
+        private int sunLock;
+        private int kysLock;
+        private int dedLock;
+        private int helloLock;
+        private int burnLock;
 
-        public MessageHandler(CommandService commands, Game g)
+        public MessageHandler()
         {
-            game = g;
-            running = true;
-
-            // Load interaction DB
-            try
-            {
-                using (Stream stream = File.Open(statsFile, FileMode.Open))
-                {
-                    var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-
-                    users = (List<BiriInteraction>)bformatter.Deserialize(stream);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-            }
-
-            if (users == null) users = new List<BiriInteraction>();
-
-            // Start saving
-            runningThread = new Thread(new ThreadStart(SaveInterval));
-            runningThread.Start();
+            sunLock = -1;
+            kysLock = -1;
+            dedLock = -1;
+            helloLock = -1;
+            burnLock = -1;
         }
 
         internal async Task Handle(MessageEventArgs e)
         {
-            if (!(e.Message.Text.Length <= 0 || Constants.BOTprefix.Contains(e.Message.Text.First()) || e.User.IsBot))
+            if (e.Message.Text.Split(' ')[0] == "\\o/")
             {
-                game.GetUser(e.User.Id, e.User.Name).AddPoints(10);
-                var player = game.GetUser(e.Message.User.Id, e.Message.User.Name);
-                //Message length limit
+                await PraiseTheSun(e);
+                return;
+            }
+            if (!(e.Message.Text.Length <= 0 || !char.IsLetter(e.Message.Text.First()) || e.User.IsBot))
+            {
                 string[] srvrwhite = { "test", "9CHAT" };
+                //Message length limit
                 /*if(srvrwhite.Contains(e.Server.Name) && e.Channel.Name != "creepypastas" && e.Message.Text.Length > 1000)
                 {
                     await e.Message.Delete();
@@ -101,6 +83,10 @@ namespace DiscordBot.Main
 
                 if (e.Message.User.Id == Constants.WIZZid)
                     return;
+                if (e.Message.Text.ToLower() == "ayy")
+                {
+                    await e.Channel.SendMessage("lmao");
+                }
                 /*
                 if (e.Message.Text.ToLower() == "ded" || e.Message.Text.ToLower() == "*ded*" && (e.Server.Name != "9CHAT" || e.User.Id == Constants.NYAid))
                 {
@@ -151,35 +137,19 @@ namespace DiscordBot.Main
                     MyBot.Log(str, e.Server.Name);
                     return;
                 }
-                if (e.Message.Text.Split(' ')[0] == "\\o/")
-                {
-                    await PraiseTheSun(e);
-                    return;
-                }
+                
                 // Mentioned biribiri
                 if (e.Message.MentionedUsers.Count() > 0 && e.Message.IsMentioningMe() || e.Message.Text.ToLower().Split(' ').Contains("biribiri") || e.Message.Text.ToLower().Split(' ').Contains("biri") || e.Message.Text.ToLower().Split(' ').Contains("biri,") || e.Message.Text.ToLower().Split(' ').Contains("biribiri,"))
                 {
                     var text = e.Message.Text.ToLower().Split(' ');
                     string returnstr = "NO!";
-                    var u = GetUser(e.User.Id, e.User.Name);
-                    string[] nice = { "love", "sweet", "nice", "good", ":heart:", "like" };
-                    string[] bad = { "death", "kill", "gross", "bad" };
-                    for(int i = 0; i < text.Count(); i++)
-                    {
-                        if (nice.Contains(text.ElementAt(i)))
-                            u.AddKarma(1);
-                        if (bad.Contains(text.ElementAt(i)))
-                            u.AddKarma(-1);
-                    }
                     if (text.Contains("thanks"))
                     {
-                        u.AddKarma(2);
                         returnstr = "My pleasure :heart:";
                         await e.Channel.SendMessage(returnstr);
                         return;
                     }
                     if (text.Contains("kys")) {
-                        u.AddKarma(-5);
                         int i;
                         do
                         {
@@ -204,6 +174,7 @@ namespace DiscordBot.Main
                     await e.Channel.SendMessage(returnstr);
                 }
             }
+
             if(e.Message.Attachments.Count() > 0 && !Constants.BOTids.Contains(e.User.Id) && e.User.Id != Constants.NYAid)
             {
                 var ext = ".jpg";
@@ -216,7 +187,8 @@ namespace DiscordBot.Main
                 var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") Saving " + e.User.Name + "'s picture as " + counter + ext;
                 MyBot.Log(str, e.Server.Name);
                 SaveFile(@"F:\DiscordBot\stats\", counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
-            }/*
+            }
+            /*
             if(e.User.Id == Constants.BONFIREid && e.Message.Text.Length > 25)
             {
                 int i;
@@ -238,41 +210,6 @@ namespace DiscordBot.Main
             }*/
         }
 
-        public void Abort()
-        {
-            Save(0);
-            running = false;
-            runningThread.Abort();
-        }
-
-        public string AddKarmaString(BiriInteraction u)
-        {
-            var karma = Math.Max(-2, Math.Min(3, u.karmaLevel));
-            if (u.id == Constants.NYAid)
-                return Constants.karmaResponse[0];
-            return Constants.karmaResponse[karma + 3];
-        }
-
-        public BiriInteraction GetUser(ulong id, string name)
-        {
-            // Check if user is in the DB
-            BiriInteraction user = null;
-            for (int i = 0; i < users.Count; i++)
-            {
-                if (id == users[i].id)
-                {
-                    user = users[i];
-                }
-            }
-            // Create new entry in database
-            if (user == null)
-            {
-                user = new BiriInteraction(id, name);
-                users.Add(user);
-            }
-            return user;
-        }
-
         private async Task PraiseTheSun(MessageEventArgs e)
         {
             await e.Message.Delete();
@@ -292,50 +229,6 @@ namespace DiscordBot.Main
             } catch
             {
 
-            }
-        }
-
-        public async Task Reset(Discord.Commands.CommandEventArgs e)
-        {
-            await e.Message.Delete();
-            if (e.User.Id == Constants.NYAid)
-            {
-                users = new List<BiriInteraction>();
-            }
-            else
-            {
-                await e.Channel.SendMessage("Hahahaha, no.");
-            }
-        }
-
-        private void SaveInterval()
-        {
-            while (running)
-            {
-                System.Threading.Thread.Sleep(15 * 60 * 1000);
-                Save(0);
-            }
-        }
-
-        public void Save(ulong id)
-        {
-            if (id == Constants.NYAid || id == 0)
-            {
-                Console.WriteLine(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") SAVING INTERACTION STATS");
-                try
-                {
-                    //serialize
-                    using (Stream stream = File.Open(statsFile, FileMode.Create))
-                    {
-                        var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-                        bformatter.Serialize(stream, users);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.StackTrace);
-                    Console.WriteLine("Error in saving");
-                }
             }
         }
 

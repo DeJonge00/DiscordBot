@@ -73,6 +73,11 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Bye(e));
 
+            commands.CreateCommand("cast")
+                .Description("<user>\n\tCast a random spell!")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Cast(e));
+
             commands.CreateCommand("cat")
                 .Description("<number>\n\tRandom cat pic!!!")
                 .Parameter("param", ParameterType.Unparsed)
@@ -141,11 +146,6 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Hug(e));
 
-            commands.CreateCommand("karma")
-                .Description("<user>\n\tCheck your biri karma (WIP)")
-                .Parameter("param", ParameterType.Unparsed)
-                .Do(async (e) => await Karma(e));
-
             commands.CreateCommand("kill")
                 .Description("<user>\n\tThreathen someone")
                 .Parameter("param", ParameterType.Unparsed)
@@ -210,7 +210,7 @@ namespace DiscordBot.Main
                 .Do(async (e) => await YTho(e));
 
             game = new Game(commands, discordClient);
-            handler = new MessageHandler(commands, game);
+            handler = new MessageHandler();
             music = new MusicHandler(commands, discordClient);
 
             // Mod commands
@@ -485,8 +485,8 @@ namespace DiscordBot.Main
                 {
                     Console.WriteLine("Connecting failed");
                 }
-                discordClient.SetGame("¯\\__(ツ)__/¯");
-                discordClient.SetStatus(UserStatus.Invisible.Value);
+                discordClient.SetGame("Kappa's face!!");
+                discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
         }
 
@@ -550,6 +550,15 @@ namespace DiscordBot.Main
             str = FirstCharToUpper(str);
             await e.Message.Delete();
             await e.Channel.SendMessage(str);
+        }
+
+        private async Task Cast(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            var mess = "**" + e.User.Name + "** casts "
+                + Responses.spell.ElementAt(MyBot.rng.Next(Responses.spell.Count())) + " on **"
+                + e.GetArg("param") + "**! " + Responses.spellresult.ElementAt(MyBot.rng.Next(Responses.spellresult.Count()));
+            await e.Channel.SendMessage(mess);
         }
 
         private async Task Cat(Discord.Commands.CommandEventArgs e)
@@ -817,16 +826,6 @@ namespace DiscordBot.Main
             await e.Channel.SendMessage(e.User.Mention + Responses.hug[num] + e.Message.MentionedUsers.ElementAt(0).Mention);
         }
 
-        private async Task Karma(Discord.Commands.CommandEventArgs e)
-        {
-            await e.Message.Delete();
-            BiriInteraction u;
-            if (e.Message.MentionedUsers.Count() > 0)
-                u = handler.GetUser(e.Message.MentionedUsers.ElementAt(0).Id, e.Message.MentionedUsers.ElementAt(0).Name);
-            else u = handler.GetUser(e.User.Id, e.User.Name);
-            await e.Channel.SendMessage(u.name + "'s karma: " + u.karma + " (level: " + u.karmaLevel + ")");
-        }
-
         private async Task Kill(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -1007,7 +1006,6 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 game.Abort();
-                handler.Abort();
                 System.Diagnostics.Process.Start(@"C:\Users\dejon\Documents\Visual Studio 2015\Projects\DiscordBot\DiscordBot\bin\Debug\DiscordBot.exe");
                 Environment.Exit(0);
             }
@@ -1205,7 +1203,6 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 game.Quit();
-                handler.Abort();
                 System.Threading.Thread.Sleep(1000);
                 await discordClient.Disconnect();
             }

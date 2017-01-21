@@ -27,7 +27,6 @@ namespace DiscordBot.Main
         public GuessingGame guessingGame        { get; private set; }
         public RPSGame rpsGame                  { get; private set; }
         public QuizGame quizGame                { get; private set; }
-        public WarhammerGame warhammer          { get; private set; }
         public TruthOrDare todGame              { get; private set; }
 
         // Constructor
@@ -79,7 +78,6 @@ namespace DiscordBot.Main
             guessingGame = new GuessingGame(commands, this);
             rpsGame = new RPSGame(commands, this);
             quizGame = new QuizGame(commands, this);
-            warhammer = new WarhammerGame(commands, this);
             todGame = new TruthOrDare(commands, this);
 
             // Start game thread
@@ -193,7 +191,6 @@ namespace DiscordBot.Main
         {
             this.running = false;
             runningThread.Abort();
-            warhammer.abort();
         }
 
         public PointDB GetUser(ulong id, string name)

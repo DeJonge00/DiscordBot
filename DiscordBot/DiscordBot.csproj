@@ -104,7 +104,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Main\BiriInteraction.cs" />
     <Compile Include="Main\Constants.cs" />
     <Compile Include="Main\Game.cs" />
     <Compile Include="Main\GameObjects\GuessingSong.cs" />
@@ -113,9 +112,6 @@
     <Compile Include="Main\GameObjects\QuizQuestion.cs" />
     <Compile Include="Main\GameObjects\RPSGame.cs" />
     <Compile Include="Main\GameObjects\TruthOrDare.cs" />
-    <Compile Include="Main\GameObjects\WarhammerGame.cs" />
-    <Compile Include="Main\GameObjects\WarhammerRPG\RPGEvent.cs" />
-    <Compile Include="Main\GameObjects\WarhammerRPG\RPGShop.cs" />
     <Compile Include="Main\MessageHandler.cs" />
     <Compile Include="Main\Music\MusicHandler.cs" />
     <Compile Include="Main\MyBot.cs" />
