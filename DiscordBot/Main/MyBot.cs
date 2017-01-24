@@ -6,6 +6,8 @@ using Discord.Commands;
 using DiscordBot.Main.Music;
 using System.IO;
 using System.Collections.Generic;
+using DiscordBot.Main.GameObjects;
+using DiscordBot.Main.RPG;
 
 namespace DiscordBot.Main
 {
@@ -16,9 +18,10 @@ namespace DiscordBot.Main
 
         public static DiscordClient discordClient       { get; private set; }
         public static Random rng = new Random();
-        public MessageHandler handler                   { get; private set; }
-        public Game game                                { get; private set; }
-        public MusicHandler music                       { get; private set; }
+        private MessageHandler handler;
+        private GameControl game;
+        private MusicHandler music;
+        private RPGMain rpg;
 
         // Duplicate saving
         private int biribiriLock = -1;
@@ -209,9 +212,10 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await YTho(e));
 
-            game = new Game(commands, discordClient);
+            game = new GameControl(commands, discordClient);
             handler = new MessageHandler();
             music = new MusicHandler(commands, discordClient);
+            rpg = new RPGMain(commands, discordClient);
 
             // Mod commands
             commands.CreateCommand("birigame")
@@ -269,7 +273,11 @@ namespace DiscordBot.Main
                     await game.quizGame.Handle(e);
                 }
                 if (!e.Channel.IsPrivate)
+                {
                     await handler.Handle(e);
+                    rpg.Handle(e);
+                }
+                    
             };
 
             discordClient.MessageDeleted += (s, e) =>
@@ -485,7 +493,7 @@ namespace DiscordBot.Main
                 {
                     Console.WriteLine("Connecting failed");
                 }
-                discordClient.SetGame("Kappa's face!!");
+                discordClient.SetGame("with shark-chan!");
                 discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
         }
@@ -1203,6 +1211,7 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 game.Quit();
+                rpg.Abort();
                 System.Threading.Thread.Sleep(1000);
                 await discordClient.Disconnect();
             }

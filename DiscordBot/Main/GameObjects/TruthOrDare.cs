@@ -10,7 +10,7 @@ namespace DiscordBot.Main
 {
     class TruthOrDare
     {
-        private Game game;
+        private GameControl game;
         public Channel channel { get; private set; }
         public User host { get; private set; }
         public bool running { get; private set; }
@@ -19,7 +19,7 @@ namespace DiscordBot.Main
         public List<int> playedD { get; private set; }
         public List<User> players { get; private set; }
         public User lastPlayer { get; private set; }
-        public TruthOrDare(CommandService commands, Game g)
+        public TruthOrDare(CommandService commands, GameControl g)
         {
             game = g;
             running = false;

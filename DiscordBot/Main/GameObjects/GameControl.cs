@@ -1,26 +1,21 @@
 ﻿using Discord;
 using Discord.Commands;
-using DiscordBot.Main.GameObjects;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Serialization;
 
-namespace DiscordBot.Main
+namespace DiscordBot.Main.GameObjects
 {
-    class Game
+    class GameControl
     {
         // Fields
         private Boolean running;
         public List<PointDB> players;
         private string statsFile = Path.Combine(@"F:\DiscordBot\stats", "stats.bin");
         private CommandService commands;
-        private Random rng;
         private Thread runningThread;
         public DiscordClient client;
         // Games
@@ -30,12 +25,11 @@ namespace DiscordBot.Main
         public TruthOrDare todGame              { get; private set; }
 
         // Constructor
-        public Game(CommandService c, DiscordClient dc)
+        public GameControl(CommandService c, DiscordClient dc)
         {
             client = dc;
             commands = c;
             running = true;
-            rng = new Random();
             try
             {
                 using (Stream stream = File.Open(statsFile, FileMode.Open))

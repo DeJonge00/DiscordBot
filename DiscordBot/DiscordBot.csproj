@@ -105,7 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main\Constants.cs" />
-    <Compile Include="Main\Game.cs" />
+    <Compile Include="Main\GameObjects\GameControl.cs" />
     <Compile Include="Main\GameObjects\GuessingSong.cs" />
     <Compile Include="Main\GameObjects\GuessingGame.cs" />
     <Compile Include="Main\GameObjects\QuizGame.cs" />
@@ -118,6 +118,8 @@
     <Compile Include="Main\GameObjects\PointDB.cs" />
     <Compile Include="Main\Program.cs" />
     <Compile Include="Main\Responses.cs" />
+    <Compile Include="Main\RPG\RPGMain.cs" />
+    <Compile Include="Main\RPG\RPGPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

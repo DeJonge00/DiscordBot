@@ -10,7 +10,7 @@ namespace DiscordBot.Main
 {
     class QuizGame
     {
-        private Game game;
+        private GameControl game;
         public Channel channel { get; private set; }
         public User host { get; private set; }
         public bool running { get; private set; }
@@ -18,7 +18,7 @@ namespace DiscordBot.Main
         public int questionsLeft { get; private set; }
         private List<QuizQuestion> questions;
 
-        public QuizGame(CommandService commands, Game g)
+        public QuizGame(CommandService commands, GameObjects.GameControl g)
         {
             game = g;
             running = false;

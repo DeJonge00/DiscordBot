@@ -9,7 +9,7 @@ namespace DiscordBot.Main.GameObjects
     class RPSGame
     {
         private CommandService commands;
-        private Game game;
+        private GameControl game;
         public bool running                         { get; private set; }
         private Channel channel;
         private User host;
@@ -18,7 +18,7 @@ namespace DiscordBot.Main.GameObjects
         private string opponentChoice;
         private string[] options                = { "rock", "paper", "scissors" };
 
-        public RPSGame(CommandService c, Game g)
+        public RPSGame(CommandService c, GameControl g)
         {
             commands = c;
             game = g;
