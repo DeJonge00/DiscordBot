@@ -34,18 +34,6 @@ namespace DiscordBot.Main.RPG
             }
         }
 
-        public void AddHealth(int i)
-        {
-            if (i > 0 && i < 100)
-            {
-                health = Math.Max(0, Math.Min(maxHealth, health + i));
-            }
-            else
-            {
-                Console.WriteLine("AddHealth: amount out of bounds");
-            }
-        }
-
         public void AddMaxHealth(int i)
         {
             if (i > 0 && i < 100)

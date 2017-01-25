@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,6 +29,12 @@ namespace DiscordBot.Main.RPG
             LoadPlayers();
 
             // RPG game commands
+            commands.CreateCommand("rpg")
+                .Alias("rpghelp")
+                .Description("\n\tGet help from the rpg game master (Me lol)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await Help(e));
+
             commands.CreateCommand("rpgstats")
                 .Description("\n\tSee your rpg stats")
                 .Parameter("param", ParameterType.Unparsed)
@@ -115,6 +120,18 @@ namespace DiscordBot.Main.RPG
             data.AddExp(10);
         }
 
+        private async Task Help(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            var mess = "**All you need to know about this game!**\n"
+                + ">rpgstats\tShow your stats (health and level and more)\n"
+                + ">rpgtop <amount>\tShow the top <amount> players of this game\n"
+                + ">rpgjbf\tJoin the next bossfight (Bossfights are every hour, on the hour!)"
+                + ">rpgshop items\tShows a list of items availeble in the shop"
+                + ">rpgshop buy <item> <amount>\tBuy the specified item, amount times (if you can afford it)";
+            await e.Channel.SendMessage(mess);
+        }
+
         public async Task JoinBossFight(Discord.Commands.CommandEventArgs e)
         {
             var player = GetPlayerData(e.User);
@@ -174,6 +191,7 @@ namespace DiscordBot.Main.RPG
 
         public async Task Top(Discord.Commands.CommandEventArgs e)
         {
+            await e.Message.Delete();
             players.Sort();
             var mess = "**RPG Top 5 players**\n```";
             for(int i = 1; i <= 5 && i <= players.Count(); i++)
