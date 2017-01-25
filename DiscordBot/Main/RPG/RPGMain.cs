@@ -14,19 +14,17 @@ namespace DiscordBot.Main.RPG
         private CommandService commands;
         private DiscordClient client;
         private List<RPGPlayer> players;
-        Thread thread;
-        Boolean running;
-        Channel rpgchannel;
-        List<RPGPlayer> bossFightPlayers;
+        private Thread thread;
+        private Boolean running;
+        private string serverName;
+        private string channelName;
+        private Channel rpgchannel;
+        private List<RPGPlayer> bossFightPlayers;
 
         public RPGMain(CommandService c, DiscordClient dc)
         {
             commands = c;
             client = dc;
-            rpgchannel = client.FindServers("test").FirstOrDefault().FindChannels("rpg").FirstOrDefault();
-            bossFightPlayers = new List<RPGPlayer>();
-
-            LoadPlayers();
 
             // RPG game commands
             commands.CreateCommand("rpg")
@@ -50,7 +48,15 @@ namespace DiscordBot.Main.RPG
                 .Description("\n\tJoin the next boss fight (>rpgjbf for short ;) )")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await JoinBossFight(e));
-            
+
+            Start();
+        }
+
+        public void Start()
+        {
+            LoadPlayers();
+            bossFightPlayers = new List<RPGPlayer>();
+
             // Start game thread
             thread = new Thread(new ThreadStart(ThreadLoop));
             thread.Start();
@@ -62,12 +68,12 @@ namespace DiscordBot.Main.RPG
             while (running)
             {
                 var time = DateTime.Now;
-
+                
                 if (time.Minute % 15 == 0)
                 {
                     SavePlayers(players);
                 }
-                if(time.Minute % 60 == 0)
+                if (time.Minute % 60 == 0)
                 {
                     Bossfight();
                 }
@@ -87,6 +93,14 @@ namespace DiscordBot.Main.RPG
 
         public void Bossfight()
         {
+            try
+            {
+                rpgchannel = client.FindServers(serverName).First().FindChannels(channelName).FirstOrDefault();
+            } catch
+            {
+                Console.WriteLine("Finding rpg channel failed");
+                return;
+            }
             var blevel = 1;
             var boss = new RPGBoss(blevel, blevel*50, blevel*10, blevel*10);
             if (bossFightPlayers.Count() <= 0)

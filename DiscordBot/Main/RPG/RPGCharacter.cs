@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBot.Main.RPG
 {
+    [Serializable]
     abstract class RPGCharacter
     {
         public int health { get; protected set; }

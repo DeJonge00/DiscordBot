@@ -212,11 +212,6 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await YTho(e));
 
-            game = new GameControl(commands, discordClient);
-            handler = new MessageHandler();
-            music = new MusicHandler(commands, discordClient);
-            rpg = new RPGMain(commands, discordClient);
-
             // Mod commands
             commands.CreateCommand("birigame")
                 .Description("\n\tSet bb's game (mod)")
@@ -260,24 +255,29 @@ namespace DiscordBot.Main
 
             discordClient.MessageReceived += async (s, e) =>
             {
-                if(e.Channel.IsPrivate && e.Message.Text.Count() > 0)
+                try
                 {
-                    Log(e.User.Name + " send dm containing: " + e.Message.Text, "privateMessages");
-                }
-                if (game.guessingGame != null && game.guessingGame.running && e.Channel == game.guessingGame.channel)
+                    if (e.Channel.IsPrivate && e.Message.Text.Count() > 0)
+                    {
+                        Log(e.User.Name + " send dm containing: " + e.Message.Text, "privateMessages");
+                    }
+                    if (game.guessingGame != null && game.guessingGame.running && e.Channel == game.guessingGame.channel)
+                    {
+                        await game.guessingGame.Handle(e);
+                    }
+                    if (game.quizGame != null && game.quizGame.running && e.Channel == game.quizGame.channel)
+                    {
+                        await game.quizGame.Handle(e);
+                    }
+                    if (!e.Channel.IsPrivate)
+                    {
+                        await handler.Handle(e);
+                        rpg.Handle(e);
+                    }
+                } catch
                 {
-                    await game.guessingGame.Handle(e);
+                    Console.WriteLine("discordClient.MessageReceived failed");
                 }
-                if (game.quizGame != null && game.quizGame.running && e.Channel == game.quizGame.channel)
-                {
-                    await game.quizGame.Handle(e);
-                }
-                if (!e.Channel.IsPrivate)
-                {
-                    await handler.Handle(e);
-                    rpg.Handle(e);
-                }
-                    
             };
 
             discordClient.MessageDeleted += (s, e) =>
@@ -482,6 +482,11 @@ namespace DiscordBot.Main
                 await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
                 Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
             };
+
+            handler = new MessageHandler();
+            game = new GameControl(commands, discordClient);
+            music = new MusicHandler(commands, discordClient);
+            rpg = new RPGMain(commands, discordClient);
 
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
