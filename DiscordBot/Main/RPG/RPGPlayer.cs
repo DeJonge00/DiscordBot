@@ -7,26 +7,19 @@ using System.Threading.Tasks;
 namespace DiscordBot.Main.RPG
 {
     [Serializable]
-    class RPGPlayer : IComparable<RPGPlayer>
+    class RPGPlayer : RPGCharacter
     {
         public string name { get; private set; }
         public ulong id { get; private set; }
         public string playerclass { get; private set; }
         public int exp { get; private set; }
         public int money { get; private set; }
-        public int health { get; private set; }
-        public int maxHealth { get; private set; }
-        public int armor { get; private set; }
-        public int damage { get; private set; }
 
-        public RPGPlayer(Discord.User u)
+        public RPGPlayer(Discord.User u) : base (100, 0, 10) 
         {
             name = u.Nickname;
             id = u.Id;
             playerclass = "peasant";
-            health = 100;
-            armor = 0;
-            damage = 10;
         }
 
         public void AddExp(int i)
@@ -80,6 +73,11 @@ namespace DiscordBot.Main.RPG
         public int CompareTo(RPGPlayer other)
         {
             return exp.CompareTo(other.exp);
+        }
+
+        public int GetLevel()
+        {
+            return exp % 100;
         }
 
         public void UpdateName(string n)

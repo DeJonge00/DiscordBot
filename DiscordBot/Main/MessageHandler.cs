@@ -175,7 +175,7 @@ namespace DiscordBot.Main
                 }
             }
 
-            if(e.Message.Attachments.Count() > 0 && !Constants.BOTids.Contains(e.User.Id) && e.User.Id != Constants.NYAid)
+            if(e.Message.Attachments.Count() > 0 && !e.User.IsBot && e.User.Id != Constants.NYAid)
             {
                 var ext = ".jpg";
                 if (e.Message.Attachments.ElementAt(0).Url.EndsWith(".gif"))

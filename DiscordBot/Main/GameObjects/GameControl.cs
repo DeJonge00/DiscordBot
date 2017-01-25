@@ -14,7 +14,6 @@ namespace DiscordBot.Main.GameObjects
         // Fields
         private Boolean running;
         public List<PointDB> players;
-        private string statsFile = Path.Combine(@"F:\DiscordBot\stats", "stats.bin");
         private CommandService commands;
         private Thread runningThread;
         public DiscordClient client;
@@ -32,7 +31,7 @@ namespace DiscordBot.Main.GameObjects
             running = true;
             try
             {
-                using (Stream stream = File.Open(statsFile, FileMode.Open))
+                using (Stream stream = File.Open(Constants.gameStatsFile, FileMode.Open))
                 {
                     var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
 
@@ -101,7 +100,7 @@ namespace DiscordBot.Main.GameObjects
                 try
                 {
                     //serialize
-                    using (Stream stream = File.Open(statsFile, FileMode.Create))
+                    using (Stream stream = File.Open(Constants.gameStatsFile, FileMode.Create))
                     {
                         var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
                         bformatter.Serialize(stream, players);

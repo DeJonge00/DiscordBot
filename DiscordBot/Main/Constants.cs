@@ -1,7 +1,5 @@
 ﻿using DiscordBot.Main.GameObjects;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DiscordBot.Main
 {
@@ -9,11 +7,8 @@ namespace DiscordBot.Main
     {
         // Stuff
         public static string botToken = "MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8";
-        public static string SOUNDCLOUDid = "rick-de-jonge-780921910";
-        public static string GOOGLEAPIkey = "AIzaSyC6Yy9fhFLYXID-5JsomZVN2dd456D09Gk";
-        public static List<ulong> ServerBlacklist = new List<ulong>();
-        public static List<ulong> ChannelBlacklist = new List<ulong>();
-        public static List<ulong> UserBlacklist = new List<ulong>();
+        public static string gameStatsFile = @"F:\DiscordBot\stats\stats.bin";
+        public static string rpgStatsFile = @"F:\DiscordBot\stats\rpgstats.bin";
         // Bots
         public static ulong BIRIBIRIid = 244410964693221377;
         public static ulong MIKIid = 109379894718234624;
@@ -22,7 +17,6 @@ namespace DiscordBot.Main
         public static ulong AUTISTICGIRLid = 150300454708838401;
         public static ulong TATSUMAKIid = 172002275412279296;
         public static ulong LEIABOT = 251143453365239809;
-        public static ulong[] BOTids = { BIRIBIRIid, MIKIid, BONFIREid, DANTHEMANid, AUTISTICGIRLid, TATSUMAKIid, LEIABOT };
 
         // Special users
         public static ulong NYAid = 143037788969762816;
