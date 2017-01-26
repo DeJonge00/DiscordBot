@@ -17,7 +17,7 @@ namespace DiscordBot.Main.RPG
 
         public RPGPlayer(Discord.User u) : base (100, 0, 10) 
         {
-            name = u.Nickname;
+            name = u.Name;
             id = u.Id;
             playerclass = "peasant";
         }
@@ -65,7 +65,7 @@ namespace DiscordBot.Main.RPG
 
         public int GetLevel()
         {
-            return exp % 100;
+            return exp / 100;
         }
 
         public void UpdateName(string n)

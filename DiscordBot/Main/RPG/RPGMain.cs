@@ -13,6 +13,7 @@ namespace DiscordBot.Main.RPG
     {
         private CommandService commands;
         private DiscordClient client;
+        private RPGShop rpgshop;
         private List<RPGPlayer> players;
         private Thread thread;
         private Boolean running;
@@ -49,11 +50,14 @@ namespace DiscordBot.Main.RPG
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await JoinBossFight(e));
 
+            rpgshop = new RPGShop(commands, client);
             Start();
         }
 
         public void Start()
         {
+            serverName = "test";
+            channelName = "rpg";
             LoadPlayers();
             bossFightPlayers = new List<RPGPlayer>();
 
@@ -121,11 +125,13 @@ namespace DiscordBot.Main.RPG
             {
                 if(p.id == u.Id)
                 {
-                    p.UpdateName(u.Nickname);
+                    p.UpdateName(u.Name);
                     return p;
                 }
             }
-            return new RPGPlayer(u);
+            RPGPlayer player = new RPGPlayer(u);
+            players.Add(player);
+            return player;
         }
 
         public void Handle(MessageEventArgs e)
@@ -150,7 +156,14 @@ namespace DiscordBot.Main.RPG
         {
             var player = GetPlayerData(e.User);
             bossFightPlayers.Add(player);
-            await e.Channel.SendMessage("Player **" + e.User.Nickname + "** added to bossfight\n" + bossFightPlayers.Count() + " players joined so far!");
+            var a = bossFightPlayers.Count();
+            if(a == 1)
+            {
+                await e.Channel.SendMessage("Player **" + e.User.Name + "** added to bossfight\n1 player joined so far!");
+            } else
+            {
+                await e.Channel.SendMessage("Player **" + e.User.Name + "** added to bossfight\n" + a + " players joined so far!");
+            }
         }
 
         public void LoadPlayers()
@@ -193,11 +206,12 @@ namespace DiscordBot.Main.RPG
         {
             await e.Message.Delete();
             var player = GetPlayerData(e.User);
-            var mess = "Stats for **" + e.User.Nickname + "**\n```"
-                + "Level:\t" + player.GetLevel()
-                + "\nExp:\t" + player.exp
+            var mess = "Stats for **" + e.User.Name + "**\n```"
+                +   "Level:\t " + player.GetLevel()
+                + "\nExp:\t   " + player.exp
+                + "\nClass:\t " + player.playerclass
                 + "\nHealth:\t" + player.health + " / " + player.maxHealth
-                + "\nArmor:\t" + player.armor
+                + "\nArmor:\t " + player.armor
                 + "\nDamage:\t" + player.damage
                 + "```";
             await e.Channel.SendMessage(mess);
@@ -206,11 +220,12 @@ namespace DiscordBot.Main.RPG
         public async Task Top(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
-            players.Sort();
+            List<RPGPlayer> sortedplayers = players.OrderBy(o => o.exp).Reverse().ToList();
             var mess = "**RPG Top 5 players**\n```";
-            for(int i = 1; i <= 5 && i <= players.Count(); i++)
+            Console.WriteLine(sortedplayers.Count());
+            for(int i = 0; i < 5 && i < sortedplayers.Count(); i++)
             {
-                mess += "\n" + i + ".\t" + players.ElementAt(0).name;
+                mess += "\n" + (i+1) + ".\t" + sortedplayers[i].name + " : " + sortedplayers[i].exp + "xp";
             }
             mess += "```";
             await e.Channel.SendMessage(mess);
