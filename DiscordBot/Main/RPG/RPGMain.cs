@@ -50,6 +50,12 @@ namespace DiscordBot.Main.RPG
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await JoinBossFight(e));
 
+            // Mod commands
+            commands.CreateCommand("rpgreset")
+                .Description("\n\tReset game progress")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await Reset(e));
+
             rpgshop = new RPGShop(commands, client);
             Start();
         }
@@ -115,7 +121,7 @@ namespace DiscordBot.Main.RPG
 
             // Resolve boss battle
             rpgchannel.SendMessage("BOSSFIGHT!!\n*Wait wut... Not even implemented? smh*");
-            MyBot.Log(DateTime.Now.ToUniversalTime().ToShortDateString() + ") Bossfight!! " + bossFightPlayers.Count() + " warriors ready", "rpggame");
+            MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") Bossfight!! " + bossFightPlayers.Count() + " warriors ready", "rpggame");
             bossFightPlayers = new List<RPGPlayer>();
         }
 
@@ -144,11 +150,11 @@ namespace DiscordBot.Main.RPG
         {
             await e.Message.Delete();
             var mess = "**All you need to know about this game!**\n"
-                + ">rpgstats\tShow your stats (health and level and more)\n"
-                + ">rpgtop <amount>\tShow the top <amount> players of this game\n"
-                + ">rpgjbf\tJoin the next bossfight (Bossfights are every hour, on the hour!)"
-                + ">rpgshop items\tShows a list of items availeble in the shop"
-                + ">rpgshop buy <item> <amount>\tBuy the specified item, amount times (if you can afford it)";
+                + ">rpgstats                    \tShow your stats (health and level and more)\n"
+                + ">rpgtop <amount>             \tShow the top <amount> players of this game\n"
+                + ">rpgjbf                      \tJoin the next bossfight (Bossfights are every hour, on the hour!)\n"
+                + ">rpgshop items               \tShows a list of items availeble in the shop\n"
+                + ">rpgshop buy <item> <amount> \tBuy the specified item, amount times (if you can afford it)";
             await e.Channel.SendMessage(mess);
         }
 
@@ -180,6 +186,19 @@ namespace DiscordBot.Main.RPG
             catch (Exception e)
             {
                 players = new List<RPGPlayer>();
+            }
+        }
+
+        public async Task Reset(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if (e.User.Id == Constants.NYAid)
+            {
+                players = new List<RPGPlayer>();
+            }
+            else
+            {
+                await e.Channel.SendMessage("Hahahaha, no.");
             }
         }
 

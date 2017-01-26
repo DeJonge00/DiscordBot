@@ -19,9 +19,12 @@ namespace DiscordBot.Main
         public static DiscordClient discordClient       { get; private set; }
         public static Random rng = new Random();
         private MessageHandler handler;
-        private GameControl game;
         private MusicHandler music;
         private RPGMain rpg;
+        private GuessingGame guessingGame;
+        private QuizGame quizGame;
+        private RPSGame rpsGame;
+        private TruthOrDare todGame;
 
         // Duplicate saving
         private int biribiriLock = -1;
@@ -261,13 +264,13 @@ namespace DiscordBot.Main
                     {
                         Log(e.User.Name + " send dm containing: " + e.Message.Text, "privateMessages");
                     }
-                    if (game.guessingGame != null && game.guessingGame.running && e.Channel == game.guessingGame.channel)
+                    if (guessingGame != null && guessingGame.running && e.Channel == guessingGame.channel)
                     {
-                        await game.guessingGame.Handle(e);
+                        await guessingGame.Handle(e);
                     }
-                    if (game.quizGame != null && game.quizGame.running && e.Channel == game.quizGame.channel)
+                    if (quizGame != null && quizGame.running && e.Channel == quizGame.channel)
                     {
-                        await game.quizGame.Handle(e);
+                        await quizGame.Handle(e);
                     }
                     if (!e.Channel.IsPrivate)
                     {
@@ -484,7 +487,10 @@ namespace DiscordBot.Main
             };
 
             handler = new MessageHandler();
-            game = new GameControl(commands, discordClient);
+            //guessingGame = new GuessingGame(commands);
+            rpsGame = new RPSGame(commands);
+            quizGame = new QuizGame(commands);
+            todGame = new TruthOrDare(commands);
             music = new MusicHandler(commands, discordClient);
             rpg = new RPGMain(commands, discordClient);
 
@@ -1018,7 +1024,7 @@ namespace DiscordBot.Main
             await e.Message.Delete();
             if (e.User.Id == Constants.NYAid)
             {
-                game.Abort();
+                rpg.Abort();
                 System.Diagnostics.Process.Start(@"C:\Users\dejon\Documents\Visual Studio 2015\Projects\DiscordBot\DiscordBot\bin\Debug\DiscordBot.exe");
                 Environment.Exit(0);
             }
@@ -1215,7 +1221,6 @@ namespace DiscordBot.Main
             await e.Message.Delete();
             if (e.User.Id == Constants.NYAid)
             {
-                game.Quit();
                 rpg.Abort();
                 System.Threading.Thread.Sleep(1000);
                 await discordClient.Disconnect();

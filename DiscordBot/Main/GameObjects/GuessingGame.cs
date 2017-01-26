@@ -9,7 +9,6 @@ namespace DiscordBot.Main
 {
     class GuessingGame
     {
-        private GameControl game;
         public Channel channel                          { get; private set; }
         private string botChannelName;
         private Channel botChannel = null;
@@ -21,9 +20,8 @@ namespace DiscordBot.Main
         private bool knownFromGuessed;
         public int songsLeft                            { get; private set; }
 
-        public GuessingGame(CommandService commands, GameObjects.GameControl g)
+        public GuessingGame(CommandService commands)
         {
-            game = g;
             botChannelName = "bot_only";
             running = false;
 

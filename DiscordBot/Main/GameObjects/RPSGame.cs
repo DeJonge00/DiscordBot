@@ -9,19 +9,17 @@ namespace DiscordBot.Main.GameObjects
     class RPSGame
     {
         private CommandService commands;
-        private GameControl game;
-        public bool running                         { get; private set; }
+        public bool running  { get; private set; }
         private Channel channel;
         private User host;
         private string hostChoice;
         private User opponent;
         private string opponentChoice;
-        private string[] options                = { "rock", "paper", "scissors" };
+        private string[] options = { "rock", "paper", "scissors" };
 
-        public RPSGame(CommandService c, GameControl g)
+        public RPSGame(CommandService c)
         {
             commands = c;
-            game = g;
 
             commands.CreateCommand("rps")
                 .Description("<stop | create> <opponent>\n\tRock-paper-scissors game")
@@ -120,14 +118,10 @@ namespace DiscordBot.Main.GameObjects
             if ((opponentChoice.ToLower() == "rock" && hostChoice.ToLower() == "scissors") || (opponentChoice.ToLower() == "paper" && hostChoice.ToLower() == "rock") || (opponentChoice.ToLower() == "scissors" && hostChoice.ToLower() == "paper"))
             { // Opponent wins
                 answer += "\nAnd the winner is... " + opponent.Name;
-                game.GetUser(opponent.Id, opponent.Name).AddPoints(20);
-                game.GetUser(host.Id, host.Name).AddPoints(5);
             }
             if ((hostChoice.ToLower() == "rock" && opponentChoice.ToLower() == "scissors") || (hostChoice.ToLower() == "paper" && opponentChoice.ToLower() == "rock") || (hostChoice.ToLower() == "scissors" && opponentChoice.ToLower() == "paper"))
             { // Host wins
                 answer += "\nThe challenger " + host.Name + " wins!";
-                game.GetUser(host.Id, host.Name).AddPoints(20);
-                game.GetUser(opponent.Id, opponent.Name).AddPoints(5);
             }
             await channel.SendMessage(answer);
             running = false;

@@ -10,7 +10,6 @@ namespace DiscordBot.Main
 {
     class QuizGame
     {
-        private GameControl game;
         public Channel channel { get; private set; }
         public User host { get; private set; }
         public bool running { get; private set; }
@@ -18,9 +17,8 @@ namespace DiscordBot.Main
         public int questionsLeft { get; private set; }
         private List<QuizQuestion> questions;
 
-        public QuizGame(CommandService commands, GameObjects.GameControl g)
+        public QuizGame(CommandService commands)
         {
-            game = g;
             running = false;
 
             commands.CreateCommand("quiz")
@@ -109,7 +107,6 @@ namespace DiscordBot.Main
             if (!currentQuestion.IsAnswer(e.Message.Text)) return;
             await channel.SendMessage(e.User.Name + " has a correct answer, namely: '" + e.Message.Text + "'");
             await NextQuestion();
-            game.GetUser(e.User.Id, e.User.Name).AddPoints(20);
         }
 
         private async Task NextQuestion()
