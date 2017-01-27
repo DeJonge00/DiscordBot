@@ -117,9 +117,9 @@
     <Compile Include="Main\GameObjects\PointDB.cs" />
     <Compile Include="Main\Program.cs" />
     <Compile Include="Main\Responses.cs" />
-    <Compile Include="Main\RPG\RPGBoss.cs" />
     <Compile Include="Main\RPG\RPGCharacter.cs" />
     <Compile Include="Main\RPG\RPGMain.cs" />
+    <Compile Include="Main\RPG\RPGMonster.cs" />
     <Compile Include="Main\RPG\RPGPlayer.cs" />
     <Compile Include="Main\RPG\RPGShop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

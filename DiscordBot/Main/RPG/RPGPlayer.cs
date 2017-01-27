@@ -14,6 +14,7 @@ namespace DiscordBot.Main.RPG
         public string playerclass { get; private set; }
         public int exp { get; private set; }
         public int money { get; private set; }
+        public int farmingLeft { get; private set; }
 
         public RPGPlayer(Discord.User u) : base (100, 0, 10) 
         {
@@ -24,26 +25,29 @@ namespace DiscordBot.Main.RPG
 
         public void AddExp(int i)
         {
-            if (i > 0 && i < 100)
-            {
-                exp += i;
-            }
-            else
+            if (i < 0 || i > 100)
             {
                 Console.WriteLine("AddExp: amount out of bounds");
+                return;
+            }
+            var l = GetLevel();
+            exp += i;
+            if(GetLevel() > l)  // Level up
+            {
+                damage = Math.Floor(damage*1.2);
             }
         }
 
-        public void AddMaxHealth(int i)
+        public void AddMaxHealth(double i)
         {
-            if (i > 0 && i < 100)
-            {
-                maxHealth += i;
-            }
-            else
+            if (i < 0 || i > 100)
             {
                 Console.WriteLine("AddMaxHealth: amount out of bounds");
+                return;
             }
+            var p = maxHealth / health;
+            maxHealth += i;
+            MultiplyHealth(p);
         }
 
         public void AddMoney(int i)
@@ -63,9 +67,33 @@ namespace DiscordBot.Main.RPG
             return exp.CompareTo(other.exp);
         }
 
+        public void DecrementFarming()
+        {
+            farmingLeft--;
+            if(farmingLeft <= 0)
+            {
+                farmingLeft = 0;
+            }
+        }
+
         public int GetLevel()
         {
             return exp / 100;
+        }
+
+        public bool IsFarming()
+        {
+            return farmingLeft <= 0;
+        }
+
+        public void SetFarming(int i)
+        {
+            if(i < 1 || i > 120)
+            {
+                Console.WriteLine("SetFarming: amount out of bounds");
+                return;
+            }
+            farmingLeft = i;
         }
 
         public void UpdateName(string n)

@@ -14,12 +14,14 @@ namespace DiscordBot.Main.RPG
         private CommandService commands;
         private DiscordClient client;
         private RPGShop rpgshop;
-        private List<RPGPlayer> players;
         private Thread thread;
         private Boolean running;
         private string serverName;
         private string channelName;
         private Channel rpgchannel;
+
+        private List<RPGPlayer> players;
+        private List<RPGPlayer> farmers;
         private List<RPGPlayer> bossFightPlayers;
 
         public RPGMain(CommandService c, DiscordClient dc)
@@ -33,6 +35,16 @@ namespace DiscordBot.Main.RPG
                 .Description("\n\tGet help from the rpg game master (Me lol)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Help(e));
+
+            commands.CreateCommand("rpgbattle")
+                .Description("\n\tGet help from the rpg game master (Me lol)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await PlayerBattle(e));
+
+            commands.CreateCommand("rpgfarm")
+                .Description("<amount>\n\tFarm for the next <amount> minutes (no talking income)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async e => await Farm(e));
 
             commands.CreateCommand("rpgstats")
                 .Description("\n\tSee your rpg stats")
@@ -60,25 +72,39 @@ namespace DiscordBot.Main.RPG
             Start();
         }
 
-        public void Start()
+        private void Start()
         {
             serverName = "test";
             channelName = "rpg";
             LoadPlayers();
             bossFightPlayers = new List<RPGPlayer>();
+            farmers = new List<RPGPlayer>();
 
             // Start game thread
             thread = new Thread(new ThreadStart(ThreadLoop));
             thread.Start();
         }
 
-        public void ThreadLoop()
+        // Triggers events
+        private void ThreadLoop()
         {
             running = true;
             while (running)
             {
                 var time = DateTime.Now;
-                
+                foreach(RPGPlayer p in farmers)
+                {
+                    p.DecrementFarming();
+                    if(!p.IsFarming())
+                    {
+                        farmers.Remove(p);
+                    }
+                }
+
+                if(time.Minute % 18 == 0)
+                {
+                    FarmingEncounter();
+                } 
                 if (time.Minute % 15 == 0)
                 {
                     SavePlayers(players);
@@ -101,7 +127,32 @@ namespace DiscordBot.Main.RPG
             thread.Abort();
         }
 
-        public void Bossfight()
+        private void Battle(RPGPlayer p, RPGMonster m)
+        {
+            rpgchannel.SendMessage("Battle between **" + p.name + "** and a monster!\nNothing happened :/");
+        }
+
+        private void Battle(RPGPlayer p1, RPGPlayer p2)
+        {
+            var battlereport = "Battle between **" + p1.name + "** and **" + p2.name + "**!";
+            RPGPlayer p3;
+            while (p1.health > 0 || p2.health > 0)
+            {
+                if (MyBot.rng.Next((int)(p1.GetLevel() + p2.GetLevel())) < p1.GetLevel())
+                {
+                    int damage = (int)(MyBot.rng.Next(10, 20) * p1.damage);
+                    p2.AddHealth(-damage);
+                    battlereport += "\n" + p1.name + " attacked for **" + damage + "**";
+                }
+                p3 = p1;
+                p1 = p2;
+                p2 = p3;
+            }
+            battlereport += "\n\nThe battle is over, " + p2.name + " laughs while walking away from " + p1.name + "'s corpse";
+            rpgchannel.SendMessage(battlereport);
+        }
+
+        private void Bossfight()
         {
             try
             {
@@ -112,7 +163,7 @@ namespace DiscordBot.Main.RPG
                 return;
             }
             var blevel = 1;
-            var boss = new RPGBoss(blevel, blevel*50, blevel*10, blevel*10);
+            var boss = new RPGMonster(blevel, blevel*50, blevel*10, blevel*10);
             if (bossFightPlayers.Count() <= 0)
             {
                 MyBot.Log(DateTime.Now.ToUniversalTime().ToShortDateString() + ") Bossfight cancelled, noone showed up", "rpggame");
@@ -124,8 +175,34 @@ namespace DiscordBot.Main.RPG
             MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") Bossfight!! " + bossFightPlayers.Count() + " warriors ready", "rpggame");
             bossFightPlayers = new List<RPGPlayer>();
         }
+        
+        private async Task Farm(Discord.Commands.CommandEventArgs e)
+        {
+            var player = GetPlayerData(e.User);
+            if(farmers.Contains(player))
+            {
+                await e.Channel.SendMessage("You are already farming! " + player.farmingLeft + " minutes left!");
+                return;
+            }
+            var param = e.GetArg("param");
+            int minutes = 5;
+            Int32.TryParse(param, out minutes);
+            player.SetFarming(minutes);
+            farmers.Add(player);
+            await e.Channel.SendMessage("You are now farming for " + minutes + " minutes!");
+        }
 
-        public RPGPlayer GetPlayerData(Discord.User u)
+        private void FarmingEncounter()
+        {
+            foreach(RPGPlayer p in farmers)
+            {
+                var mlevel = Math.Max(1, p.GetLevel()+(MyBot.rng.Next(10)-5));
+                var monster = new RPGMonster(mlevel, mlevel * 20, mlevel * 5, mlevel * 10);
+                Battle(p, monster);
+            }
+        }
+
+        private RPGPlayer GetPlayerData(Discord.User u)
         {
             foreach(RPGPlayer p in players)
             {
@@ -158,7 +235,7 @@ namespace DiscordBot.Main.RPG
             await e.Channel.SendMessage(mess);
         }
 
-        public async Task JoinBossFight(Discord.Commands.CommandEventArgs e)
+        private async Task JoinBossFight(Discord.Commands.CommandEventArgs e)
         {
             var player = GetPlayerData(e.User);
             bossFightPlayers.Add(player);
@@ -172,7 +249,7 @@ namespace DiscordBot.Main.RPG
             }
         }
 
-        public void LoadPlayers()
+        private void LoadPlayers()
         {
             try
             {
@@ -189,7 +266,35 @@ namespace DiscordBot.Main.RPG
             }
         }
 
-        public async Task Reset(Discord.Commands.CommandEventArgs e)
+        private async Task PlayerBattle(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            if(e.Channel != rpgchannel)
+            {
+                await e.Channel.SendMessage("Please fight in the designated arena! ( #" + rpgchannel.Name + " )");
+                return;
+            }
+            var player = GetPlayerData(e.User);
+            if (player.IsFarming())
+            {
+                await e.Channel.SendMessage("You are really busy with farming at the moment... (" + player.farmingLeft + " minutes left)");
+                return;
+            }
+            if(e.Message.MentionedUsers.Count() <= 0)
+            {
+                await e.Channel.SendMessage("Sooo, who are you gonna battle??");
+                return;
+            }
+            var enemy = GetPlayerData(e.Message.MentionedUsers.ElementAt(0));
+            if (enemy.IsFarming())
+            {
+                await e.Channel.SendMessage("Your enemy is really busy with farming at the moment... (" + player.farmingLeft + " minutes left)");
+                return;
+            }
+            Battle(player, enemy);
+        }
+
+        private async Task Reset(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
             if (e.User.Id == Constants.NYAid)
@@ -202,7 +307,7 @@ namespace DiscordBot.Main.RPG
             }
         }
 
-        public void SavePlayers(List<RPGPlayer> p)
+        private void SavePlayers(List<RPGPlayer> p)
         {
             try
             {
@@ -221,7 +326,7 @@ namespace DiscordBot.Main.RPG
             }
         }
 
-        public async Task Stats(Discord.Commands.CommandEventArgs e)
+        private async Task Stats(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
             var player = GetPlayerData(e.User);
@@ -236,7 +341,7 @@ namespace DiscordBot.Main.RPG
             await e.Channel.SendMessage(mess);
         }
 
-        public async Task Top(Discord.Commands.CommandEventArgs e)
+        private async Task Top(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
             List<RPGPlayer> sortedplayers = players.OrderBy(o => o.exp).Reverse().ToList();
