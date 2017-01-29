@@ -16,11 +16,23 @@ namespace DiscordBot.Main.RPG
         public int money { get; private set; }
         public int farmingLeft { get; private set; }
 
-        public RPGPlayer(Discord.User u) : base (100, 0, 10) 
+        public RPGPlayer(Discord.User u) : base (100, 0, 10, 10) 
         {
             name = u.Name;
             id = u.Id;
-            playerclass = "peasant";
+            playerclass = "Peasant";
+        }
+
+        public void AddDamage(int i)
+        {
+            if (i > 0 && i < 100)
+            {
+                damage += i;
+            }
+            else
+            {
+                Console.WriteLine("AddDamage: amount out of bounds");
+            }
         }
 
         public void AddExp(int i)
@@ -35,6 +47,8 @@ namespace DiscordBot.Main.RPG
             if(GetLevel() > l)  // Level up
             {
                 damage = Math.Floor(damage*1.2);
+                weaponskill += 2;
+                maxHealth += 25;
             }
         }
 
@@ -52,13 +66,25 @@ namespace DiscordBot.Main.RPG
 
         public void AddMoney(int i)
         {
-            if (i > 0 && i < 100)
+            if (i > -500 && i < 500)
             {
                 money += i;
             }
             else
             {
                 Console.WriteLine("AddMoney: amount out of bounds");
+            }
+        }
+
+        public void AddWeaponSkill(int i)
+        {
+            if (i > 0 && i < 100)
+            {
+                weaponskill += i;
+            }
+            else
+            {
+                Console.WriteLine("AddWeaponSkill: amount out of bounds");
             }
         }
 
@@ -83,7 +109,21 @@ namespace DiscordBot.Main.RPG
 
         public bool IsFarming()
         {
-            return farmingLeft <= 0;
+            return farmingLeft < 0;
+        }
+
+        public void SetClass(string c)
+        {
+            string[] classes =
+            {
+                "Peasant"
+            };
+            if (!classes.Contains(c))
+            {
+                Console.WriteLine("SetClass: Invalid class");
+                return;
+            }
+            playerclass = c;
         }
 
         public void SetFarming(int i)

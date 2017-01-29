@@ -8,13 +8,13 @@ namespace DiscordBot.Main.RPG
 {
     class RPGShop
     {
-        private DiscordClient client;
         private CommandService commands;
+        private RPGMain rpgmain;
 
-        public RPGShop(CommandService c, DiscordClient dc)
+        public RPGShop(CommandService c, RPGMain rpgm)
         {
             commands = c;
-            client = dc;
+            rpgmain = rpgm;
 
             commands.CreateCommand("rpgshop")
                 .Description("\n\tShop for RPG game")
@@ -29,17 +29,41 @@ namespace DiscordBot.Main.RPG
                 await e.Channel.SendMessage("Just going to watch the merchendise? Oh ok");
                 return;
             }
+            Console.WriteLine("XD");
             var amount = 1;         // Amount of (the same) items player wants to buy
-            if (param.Count() >= 2)
+            if (param.Count() > 2)
             {
                 Int32.TryParse(param.ElementAt(2), out amount);
             }
+            var player = rpgmain.GetPlayerData(e.User);
             switch(param.ElementAt(1))
             {
                 case "0":
                 case "hp":
                 case "health":
-                    Console.WriteLine("Trying to buy hp");
+                    var cost = amount * 25;
+                    if (cost > player.money)
+                    {
+                        var mess = "You cant buy something without money";
+                        if(player.money > 25)
+                        {
+                            cost = player.money / 25;
+                            var cost2 = Math.Ceiling((player.maxHealth - player.health)/10);
+                            if (cost < cost2)
+                            {
+                                mess += "\nYou can only buy a maximum of " + cost;
+                            } else
+                            {
+                                mess += "\nYou only need to buy a maximum of " + cost2;
+                            }
+                        }
+                        await e.Channel.SendMessage(mess);
+                        return;
+                    }
+                    player.AddMoney(-cost);
+                    player.AddHealth(amount*10);
+                    await e.Channel.SendMessage("You succesfully bought " + amount + " healthpotions, healing you to + " + player.health);
+                    MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") " + player.name + " bought " + amount + " healthpotions, healing to + " + player.health, RPGMain.filename);
                     break;
                 case "1":
                 case "exp":

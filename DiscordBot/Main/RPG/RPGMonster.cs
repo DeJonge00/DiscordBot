@@ -8,11 +8,8 @@ namespace DiscordBot.Main.RPG
 {
     class RPGMonster : RPGCharacter
     {
-        public int level { get; protected set; }
-
-        public RPGMonster(int level, int health, int armor, int damage) : base(health, armor, damage)
+        public RPGMonster(int health, int armor, int damage, int weaponskill) : base(health, armor, damage, weaponskill)
         {
-            this.level = level;
         }
     }
 }

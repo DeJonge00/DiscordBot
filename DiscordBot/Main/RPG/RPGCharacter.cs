@@ -13,18 +13,20 @@ namespace DiscordBot.Main.RPG
         public double maxHealth { get; protected set; }
         public double armor { get; protected set; }
         public double damage { get; protected set; }
+        public double weaponskill { get; protected set; }
 
-        protected RPGCharacter(int health, int armor, int damage)
+        protected RPGCharacter(int health, int armor, int damage, int weaponskill)
         {
             this.health = health;
             maxHealth = health;
             this.armor = armor;
             this.damage = damage;
+            this.weaponskill = weaponskill;
         }
 
         public void AddHealth(int i)
         {
-            if (i < 0 || i > 100)
+            if (i < -100 || i > 100)
             {
                 Console.WriteLine("AddHealth: amount out of bounds");
                 return;

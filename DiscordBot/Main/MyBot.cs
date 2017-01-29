@@ -260,6 +260,11 @@ namespace DiscordBot.Main
             {
                 try
                 {
+                    // In case I get kicked one day and they forget BB
+                    /*if(e.Server.Name == "9CHAT")
+                    {
+                        Log(e.User.Name + " - " + e.Channel.Name + " : " + e.Message.Text, "fuckThatLoli");
+                    }*/
                     if (e.Channel.IsPrivate && e.Message.Text.Count() > 0)
                     {
                         Log(e.User.Name + " send dm containing: " + e.Message.Text, "privateMessages");
@@ -275,7 +280,7 @@ namespace DiscordBot.Main
                     if (!e.Channel.IsPrivate)
                     {
                         await handler.Handle(e);
-                        rpg.Handle(e);
+                        await rpg.Handle(e);
                     }
                 } catch
                 {
