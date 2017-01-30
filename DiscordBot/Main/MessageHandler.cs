@@ -40,7 +40,7 @@ namespace DiscordBot.Main
                 await PraiseTheSun(e);
                 return;
             }
-            if (!(e.Message.Text.Length <= 0 || !char.IsLetter(e.Message.Text.First()) || e.User.IsBot))
+            if (!(e.Message.Text.Length <= 0 || !char.IsLetter(e.Message.Text.First())))
             {
                 string[] srvrwhite = { "test", "9CHAT" };
                 //Message length limit
@@ -175,7 +175,7 @@ namespace DiscordBot.Main
                 }
             }
 
-            if(e.Message.Attachments.Count() > 0 && !e.User.IsBot && e.User.Id != Constants.NYAid)
+            if(e.Message.Attachments.Count() > 0 && e.User.Id != Constants.NYAid)
             {
                 var ext = ".jpg";
                 if (e.Message.Attachments.ElementAt(0).Url.EndsWith(".gif"))
@@ -188,26 +188,6 @@ namespace DiscordBot.Main
                 MyBot.Log(str, e.Server.Name);
                 SaveFile(@"F:\DiscordBot\stats\", counter.ToString() + ext, e.Message.Attachments.ElementAt(0).Url);
             }
-            /*
-            if(e.User.Id == Constants.BONFIREid && e.Message.Text.Length > 25)
-            {
-                int i;
-                var s = e.Message.Text.Split(' ');
-                if (!Int32.TryParse(s.ElementAt(s.Count()-3), out i))
-                {
-                    return;
-                }
-                if(i%100 == 0)
-                {
-                    await e.Channel.SendMessage("Congratulations on your nolife behaviour!!!");
-                    return;
-                }
-                if(i%25 == 0)
-                {
-                    await e.Channel.SendMessage("Whyyyy person? Why dont you like **me** more?");
-                    return;
-                }
-            }*/
         }
 
         private async Task PraiseTheSun(MessageEventArgs e)

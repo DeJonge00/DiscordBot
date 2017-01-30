@@ -260,6 +260,10 @@ namespace DiscordBot.Main
             {
                 try
                 {
+                    if (e.User.IsBot)
+                    {
+                        return;
+                    }
                     // In case I get kicked one day and they forget BB
                     /*if(e.Server.Name == "9CHAT")
                     {
@@ -496,7 +500,7 @@ namespace DiscordBot.Main
             rpsGame = new RPSGame(commands);
             quizGame = new QuizGame(commands);
             todGame = new TruthOrDare(commands);
-            music = new MusicHandler(commands, discordClient);
+            //music = new MusicHandler(commands, discordClient);
             rpg = new RPGMain(commands, discordClient);
 
             // Connecting to discord server
@@ -509,7 +513,7 @@ namespace DiscordBot.Main
                 {
                     Console.WriteLine("Connecting failed");
                 }
-                discordClient.SetGame("with shark-chan!");
+                discordClient.SetGame("with loli's <3");
                 discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
         }
@@ -1241,8 +1245,14 @@ namespace DiscordBot.Main
         {
             await e.Message.Delete();
             string s = "**Help menu:**\n```";
+            Console.WriteLine("x: " + commands.AllCommands.Count());
             for(int i = 0; i < commands.AllCommands.Count(); i++)
             {
+                if(i%40==0 && i!=0)
+                {
+                    await e.User.SendMessage(s+"```");
+                    s = "```";
+                }
                 s += commands.AllCommands.ElementAt(i).Text + " " + commands.AllCommands.ElementAt(i).Description + "\n";
             }
             s += "```\n*If anything does not seem to work as it is supposed to: msg NYA-CHAN*";

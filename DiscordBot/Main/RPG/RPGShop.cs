@@ -66,15 +66,14 @@ namespace DiscordBot.Main.RPG
                     MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") " + player.name + " bought " + amount + " healthpotions, healing to + " + player.health, RPGMain.filename);
                     break;
                 case "1":
-                case "exp":
-                case "xp":
-                    Console.WriteLine("Trying to buy exp");
-                    break;
+                case "maxhealth":
+                case "maxhp":
                 case "2":
                 case "armor":
                 case "armour":
-                    Console.WriteLine("Trying to buy armor");
-                    break;
+                case "3":
+                case "weaponskill":
+                case "ws":
                 default:
                     await e.Channel.SendMessage("Ehhmm, we don't have that in stock right now...");
                     return;
@@ -85,9 +84,9 @@ namespace DiscordBot.Main.RPG
         {
             await e.Message.Delete();
             var param = e.GetArg("param").Split(' ');
-            if(param.Count() < 1)
+            if(param.Count() <= 0)
             {
-                await e.Channel.SendMessage("What do you want to do in the shop?   (>rpgshop help for more info!)");
+                await e.Channel.SendMessage("What do you want to do in the shop?   (>rpghelp for more info!)");
                 return;
             }
             switch(param.ElementAt(0))
@@ -97,9 +96,10 @@ namespace DiscordBot.Main.RPG
                     break;
                 case "items":
                     await e.Channel.SendMessage("**Todays shopitems:**" 
-                        + "\n0)\tHealth potions\t(hp/health)" 
-                        + "\n1)\tExperience potions\t(exp/xp)"
-                        + "\n2)\tArmor enhancements\t(armor/armour)");
+                        + "\n0)\tHealth potions      \t(hp/health)" 
+                        + "\n1)\tMuscle training     \t(maxhp/maxhealth)"
+                        + "\n2)\tArmor enhancements  \t(armor/armour)"
+                        + "\n3)\tWeapon training     \t(weaponskill/ws)");
                     break;
                 default:
                     await e.Channel.SendMessage("Shopcommand " + param.ElementAt(0) + " not recognized");

@@ -144,29 +144,29 @@ namespace DiscordBot.Main.RPG
 
         private void Battle(Channel channel, RPGPlayer p1, RPGPlayer p2)
         {
-            var battlereport = "Battle between **" + p1.name + "** and **" + p2.name + "**!";
+            var battlereport = "Battle between **" + p1.name + "** (" + p1.health + ") and **" + p2.name + "** (" + p2.health + ")!\n";
             RPGPlayer p3;
-            for (int i = 0; (p1.health > 0 && p2.health > 0) && i < 25; i++)
+            for (int i = 0; (p1.health > 0 && p2.health > 0) && i < 30; i++)
             {
                 var ws = MyBot.rng.Next((int)(p1.weaponskill + p2.weaponskill));
-                Console.WriteLine(ws);
                 if (ws < p1.weaponskill)
                 {
                     int damage = (int)((MyBot.rng.Next(100, 200) * p1.damage)/100);
                     p2.AddHealth(-damage);
-                    battlereport += "\n" + p1.name + " attacked for **" + damage + "**";
+                    battlereport += "\n**" + p1.name + "** attacked for **" + damage + "**";
                 }
                 p3 = p1;
                 p1 = p2;
                 p2 = p3;
-                Console.WriteLine(p1.name + ": " + p1.health + " | " + p2.name + " : " + p2.health);
+                //Console.WriteLine(p1.name + ": " + p1.health + " | " + p2.name + " : " + p2.health);
             }
             if(p1.health <= 0)
             {
-                battlereport += "\n\nThe battle is over, " + p2.name + " laughs while walking away from " + p1.name + "'s corpse";
+                battlereport += "\n\nThe battle is over, **" + p2.name + "** (" + p2.health + ") laughs while walking away from **" + p1.name + "**'s corpse";
             } else
             {
-                battlereport += "\n\nThe battle lasted long, both players are exhausted. They agree on a draw *this time*";
+                battlereport += "\n\nThe battle lasted long, both players are exhausted. They agree on a draw *this time*\n"
+                    + "Healthreport: **" + p1.name + "** (" + p1.health + "), **" + p2.name + "** (" + p2.health + ")";
             }
             channel.SendMessage(battlereport);
         }
@@ -185,7 +185,7 @@ namespace DiscordBot.Main.RPG
             var boss = new RPGMonster(blevel*100, blevel*10, blevel*15, blevel*5);
             if (bossFightPlayers.Count() <= 0)
             {
-                MyBot.Log(DateTime.Now.ToUniversalTime().ToShortDateString() + ") Bossfight cancelled, noone showed up", "rpggame");
+                MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") Bossfight cancelled, noone showed up", "rpggame");
                 return;
             }
 
@@ -239,19 +239,20 @@ namespace DiscordBot.Main.RPG
         public async Task Handle(MessageEventArgs e)
         {
             var data = GetPlayerData(e.User);
-            data.AddExp(10);
-            data.AddMoney(10);
+            var i = (int)Math.Round(Math.Sqrt(data.GetLevel())*Math.Max(5, Math.Min(50, e.Message.Text.Length-7)));
+            data.AddExp(i);
+            data.AddMoney(i);
         }
 
         private async Task Help(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
             var mess = "**All you need to know about this game!**\n"
-                + ">rpgstats                    \tShow your stats (health and level and more)\n"
-                + ">rpgtop <amount>             \tShow the top <amount> players of this game\n"
-                + ">rpgjbf                      \tJoin the next bossfight (Bossfights are every hour, on the hour!)\n"
-                + ">rpgshop items               \tShows a list of items availeble in the shop\n"
-                + ">rpgshop buy <item> <amount> \tBuy the specified item, amount times (if you can afford it)";
+                + ">rpgstats\n\tShow your stats (health and level and more)\n"
+                + ">rpgtop <amount>\n\tShow the top <amount> players of this game (max 9)\n"
+                + ">rpgjbf\n\tJoin the next bossfight (Bossfights are every hour, on the hour!)\n"
+                + ">rpgshop items\n\tShows a list of items availeble in the shop\n"
+                + ">rpgshop buy <item> <amount>\n\tBuy the specified item, amount times (if you can afford it)";
             await e.Channel.SendMessage(mess);
         }
 
@@ -389,7 +390,13 @@ namespace DiscordBot.Main.RPG
             List<RPGPlayer> sortedplayers = players.OrderBy(o => o.exp).Reverse().ToList();
             var mess = "**RPG Top 5 players**\n```";
             Console.WriteLine(sortedplayers.Count());
-            for(int i = 0; i < 5 && i < sortedplayers.Count(); i++)
+            var num = 5;
+            if(e.GetArg("param").Length > 0)
+            {
+                Int32.TryParse(e.GetArg("param"), out num);
+                if (num > 9) num = 9;
+            }
+            for(int i = 0; i < num && i < sortedplayers.Count(); i++)
             {
                 mess += "\n" + (i+1) + ".\t" + sortedplayers[i].name + " : " + sortedplayers[i].exp + "xp";
             }
