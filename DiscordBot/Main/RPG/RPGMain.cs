@@ -32,13 +32,12 @@ namespace DiscordBot.Main.RPG
 
             // RPG game commands
             commands.CreateCommand("rpg")
-                .Alias("rpghelp")
-                .Description("\n\tGet help from the rpg game master (Me lol)")
+                .Description("\n\tBasic commands of the rpg")
                 .Parameter("param", ParameterType.Unparsed)
-                .Do(async e => await Help(e));
+                .Do(async e => await BasicRPG(e));
 
             commands.CreateCommand("rpgbattle")
-                .Description("\n\tGet help from the rpg game master (Me lol)")
+                .Description("<@person>\n\tBattle a fellow chatwarrior to a lethal battle!")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await PlayerBattle(e));
 
@@ -65,7 +64,7 @@ namespace DiscordBot.Main.RPG
 
             // Mod commands
             commands.CreateCommand("rpgreset")
-                .Description("\n\tReset game progress")
+                .Description("\n\tReset game progress (mod)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Reset(e));
 
@@ -137,6 +136,42 @@ namespace DiscordBot.Main.RPG
             thread.Abort();
         }
 
+        private async Task BasicRPG(Discord.Commands.CommandEventArgs e)
+        {
+            var param = e.GetArg("param").Split(' ');
+            if(param.Count()<=0)
+            {
+                await Help(e);
+                return;
+            }
+            switch(param[0])
+            {
+                case "help":
+                    await Help(e);
+                    break;
+                case "class":
+                    bool success;
+                    if(param.Count() <= 1)
+                    {
+                        success = GetPlayerData(e.User).SetClass("Peasant");
+                    } else
+                    {
+                        success = GetPlayerData(e.User).SetClass(param[1]);
+                    }
+                    if(success)
+                    {
+                        await e.Channel.SendMessage("You now have a new class! Good luck fighting!");
+                    } else
+                    {
+                        await e.Channel.SendMessage("Hmm, do not go making up classes pls...");
+                    }
+                    break;
+                default:
+                    await Help(e);
+                    break;
+            }
+        }
+
         private void Battle(Channel channel, RPGPlayer p, RPGMonster m)
         {
             rpgchannel.SendMessage("Battle between **" + p.name + "** and a monster!\nNothing happened :/");
@@ -205,10 +240,17 @@ namespace DiscordBot.Main.RPG
             }
             var param = e.GetArg("param");
             int minutes = 5;
-            Int32.TryParse(param, out minutes);
-            player.SetFarming(minutes);
-            farmers.Add(player);
-            await e.Channel.SendMessage("You are now farming for " + minutes + " minutes!");
+            if(param.Length > 0)
+            {
+                Int32.TryParse(param, out minutes);
+            }
+            if(player.SetFarming(minutes))
+            {
+                farmers.Add(player);
+                await e.Channel.SendMessage("You are now farming for " + minutes + " minutes!");
+                return;
+            }
+            await e.Channel.SendMessage("Maybe check your parameters again?");
         }
 
         private void FarmingEncounter()
@@ -239,7 +281,7 @@ namespace DiscordBot.Main.RPG
         public async Task Handle(MessageEventArgs e)
         {
             var data = GetPlayerData(e.User);
-            var i = (int)Math.Round(Math.Sqrt(data.GetLevel())*Math.Max(5, Math.Min(50, e.Message.Text.Length-7)));
+            var i = (int)Math.Round(Math.Pow(data.GetLevel(), 0.25)*Math.Max(5, Math.Min(50, (e.Message.Text.Length/2)-7)));
             data.AddExp(i);
             data.AddMoney(i);
         }
@@ -364,14 +406,26 @@ namespace DiscordBot.Main.RPG
         {
             await e.Message.Delete();
             RPGPlayer player;
-            if(e.Message.MentionedUsers.Count() <= 0)
-            {
-                player = GetPlayerData(e.User);
-            } else
+            var param = e.GetArg("param");
+            if(e.Message.MentionedUsers.Count() > 0)
             {
                 player = GetPlayerData(e.Message.MentionedUsers.ElementAt(0));
+            } else if(param.Length > 0)
+            {
+                player = GetPlayerData(e.User);
+                foreach (RPGPlayer p in players)
+                {
+                    if(p.name.ToLower() == param.ToLower())
+                    {
+                        player = p;
+                        break;
+                    }
+                }
+            } else 
+            {
+                player = GetPlayerData(e.User);
             }
-            var mess = "Stats for **" + e.User.Name + "**\n```"
+            var mess = "Stats for **" + player.name + "**\n```"
                 +   "Level:      \t" + player.GetLevel()
                 + "\nExp:        \t" + player.exp
                 + "\nClass:      \t" + player.playerclass
@@ -398,7 +452,7 @@ namespace DiscordBot.Main.RPG
             }
             for(int i = 0; i < num && i < sortedplayers.Count(); i++)
             {
-                mess += "\n" + (i+1) + ".\t" + sortedplayers[i].name + " : " + sortedplayers[i].exp + "xp";
+                mess += "\n" + (i+1) + ".\t" + sortedplayers[i].name + " : " + sortedplayers[i].exp + "xp (lvl: " + sortedplayers[i].GetLevel() + ")";
             }
             mess += "```";
             await e.Channel.SendMessage(mess);

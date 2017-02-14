@@ -26,7 +26,7 @@ namespace DiscordBot.Main.RPG
 
         public void AddHealth(int i)
         {
-            if (i < -100 || i > 100)
+            if (i < -10000 || i > 10000)
             {
                 Console.WriteLine("AddHealth: amount out of bounds");
                 return;

@@ -40,7 +40,7 @@ namespace DiscordBot.Main
                 await PraiseTheSun(e);
                 return;
             }
-            if (!(e.Message.Text.Length <= 0 || !char.IsLetter(e.Message.Text.First())))
+            if (e.Message.IsMentioningMe() || !(e.Message.Text.Length <= 0 || !char.IsLetter(e.Message.Text.First())))
             {
                 string[] srvrwhite = { "test", "9CHAT" };
                 //Message length limit

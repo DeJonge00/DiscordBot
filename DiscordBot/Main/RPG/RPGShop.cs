@@ -29,7 +29,6 @@ namespace DiscordBot.Main.RPG
                 await e.Channel.SendMessage("Just going to watch the merchendise? Oh ok");
                 return;
             }
-            Console.WriteLine("XD");
             var amount = 1;         // Amount of (the same) items player wants to buy
             if (param.Count() > 2)
             {
@@ -74,6 +73,9 @@ namespace DiscordBot.Main.RPG
                 case "3":
                 case "weaponskill":
                 case "ws":
+                case "4":
+                case "damage":
+                case "dam":
                 default:
                     await e.Channel.SendMessage("Ehhmm, we don't have that in stock right now...");
                     return;

@@ -85,6 +85,10 @@
       <HintPath>..\packages\Nito.AsyncEx.3.0.1\lib\net45\Nito.AsyncEx.Enlightenment.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NReco.VideoConverter, Version=1.1.2.0, Culture=neutral, PublicKeyToken=395ccb334978a0cd, processorArchitecture=MSIL">
+      <HintPath>..\packages\NReco.VideoConverter.1.1.2\lib\net20\NReco.VideoConverter.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.105.2.3\lib\net452\RestSharp.dll</HintPath>
       <Private>True</Private>
@@ -113,6 +117,7 @@
     <Compile Include="Main\GameObjects\TruthOrDare.cs" />
     <Compile Include="Main\MessageHandler.cs" />
     <Compile Include="Main\Music\MusicHandler.cs" />
+    <Compile Include="Main\Music\Song.cs" />
     <Compile Include="Main\MyBot.cs" />
     <Compile Include="Main\GameObjects\PointDB.cs" />
     <Compile Include="Main\Program.cs" />
@@ -382,9 +387,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Main\language\9.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Main\Music\99.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Main\railgun\railgun1.png">

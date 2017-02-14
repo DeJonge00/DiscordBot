@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiscordBot.Main.RPG
 {
@@ -37,7 +34,7 @@ namespace DiscordBot.Main.RPG
 
         public void AddExp(int i)
         {
-            if (i < 0 || i > 100)
+            if (i < 0 || i > 10000)
             {
                 Console.WriteLine("AddExp: amount out of bounds");
                 return;
@@ -46,7 +43,7 @@ namespace DiscordBot.Main.RPG
             exp += i;
             if(GetLevel() > l)  // Level up
             {
-                damage = Math.Floor(damage*1.2);
+                damage = Math.Floor(damage*1.1);
                 weaponskill += 2;
                 maxHealth += 25;
             }
@@ -54,7 +51,7 @@ namespace DiscordBot.Main.RPG
 
         public void AddMaxHealth(double i)
         {
-            if (i < 0 || i > 100)
+            if (i < 0 || i > 1000)
             {
                 Console.WriteLine("AddMaxHealth: amount out of bounds");
                 return;
@@ -66,7 +63,7 @@ namespace DiscordBot.Main.RPG
 
         public void AddMoney(int i)
         {
-            if (i > -500 && i < 500)
+            if (i > -10000 && i < 10000)
             {
                 money += i;
             }
@@ -104,36 +101,44 @@ namespace DiscordBot.Main.RPG
 
         public int GetLevel()
         {
-            return exp / 100;
+            return (int)Math.Round(Math.Sqrt(exp) / 20);
         }
 
         public bool IsFarming()
         {
-            return farmingLeft < 0;
+            return farmingLeft > 0;
         }
 
-        public void SetClass(string c)
+        public bool SetClass(string c)
         {
             string[] classes =
             {
-                "Peasant"
+                "Peasant",                  // Nothing
+                "Healer",                   // Heal self or partymember(s)
+                "Ninja",                    // Stun enemy
+                "Tank",                     // Faster targeted + healthbonus
+                "Wizard",                   // More damage + lower health
+                "Swordsman",                // More weaponskill
+                "Musician"                  // Team resistance boost
             };
             if (!classes.Contains(c))
             {
                 Console.WriteLine("SetClass: Invalid class");
-                return;
+                return false;
             }
             playerclass = c;
+            return true;
         }
 
-        public void SetFarming(int i)
+        public bool SetFarming(int i)
         {
             if(i < 1 || i > 120)
             {
                 Console.WriteLine("SetFarming: amount out of bounds");
-                return;
+                return false;
             }
             farmingLeft = i;
+            return true;
         }
 
         public void UpdateName(string n)

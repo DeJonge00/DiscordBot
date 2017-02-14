@@ -1,5 +1,7 @@
 ﻿using DiscordBot.Main.GameObjects;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace DiscordBot.Main
 {
@@ -7,8 +9,8 @@ namespace DiscordBot.Main
     {
         // Stuff
         public static string botToken = "MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8";
-        public static string gameStatsFile = @"F:\DiscordBot\stats\stats.bin";
-        public static string rpgStatsFile = @"F:\DiscordBot\stats\rpgstats.bin";
+        public static string gameStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "stats.bin");
+        public static string rpgStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "rpgstats.bin");
         // Bots
         public static ulong BIRIBIRIid = 244410964693221377;
         public static ulong MIKIid = 109379894718234624;

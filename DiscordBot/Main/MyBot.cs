@@ -75,7 +75,7 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Biribiri(e));
 
             commands.CreateCommand("bye")
-                .Description("<user> \n\tSay goodbye to someone")
+                .Description("<@user> \n\tSay goodbye to someone")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Bye(e));
 
@@ -105,12 +105,12 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Coinflip(e));
 
             commands.CreateCommand("compliment")
-                .Description("<user>\n\tGive someone a compliment")
+                .Description("<@user>\n\tGive someone a compliment")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Compliment(e));
 
             commands.CreateCommand("cuddle")
-                .Description("<number>\n\tRandom cuddle gif!!!")
+                .Description("<user>\n\tRandom cuddle gif!!!")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Cuddle(e));
 
@@ -127,13 +127,13 @@ namespace DiscordBot.Main
                 .Do(async (e) => await DedChat(e));
 
             commands.CreateCommand("echo")
-                .Description("<message>\n\tEcho the message")
+                .Description("<message>\n\tEcho <message>")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Echo(e));
 
             commands.CreateCommand("echoelse")
                 .Alias("echo2")
-                .Description("<channel> <chat> <message>\n\tEcho the message in *channel - chat*")
+                .Description("<channel> <chat> <message>\n\tEcho <message> in <channel> - <chat>")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await EchoElsewhere(e));
 
@@ -148,7 +148,7 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Help(e));
 
             commands.CreateCommand("hug")
-                .Description("<user>\n\tHug a user")
+                .Description("<@user>\n\tHug a user")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Hug(e));
 
@@ -158,7 +158,7 @@ namespace DiscordBot.Main
                 .Do(async (e) => await Kill(e));
 
             commands.CreateCommand("kiss")
-                .Description("<user>\n\tKiss someone")
+                .Description("<@user>\n\tKiss someone")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Kiss(e));
 
@@ -172,11 +172,6 @@ namespace DiscordBot.Main
                 .Description("<words to prefix>\n\tSay ( ͡° ͜ʖ ͡°)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Lenny(e));
-
-            commands.CreateCommand("list")
-                .Description("<bestgirl | anime>\n\tPrint a top-list")
-                .Parameter("param", ParameterType.Unparsed)
-                .Do(async (e) => await List(e));
 
             commands.CreateCommand("loop")
                 .Description("\n\tLoop-da-loopy-loop!")
@@ -195,12 +190,12 @@ namespace DiscordBot.Main
 
             commands.CreateCommand("picture")
                 .Alias("pp")
-                .Description("<user | servername>\n\tGet the picture of the mentioned person")
+                .Description("<@user | servername>\n\tGet the picture of the mentioned person")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Picture(e));
 
             commands.CreateCommand("sing")
-                .Description("\n\tLet me sing a song for you")
+                .Description("<songname>\n\tLet me sing a song for you")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Sing(e));
 
@@ -232,7 +227,7 @@ namespace DiscordBot.Main
                 .Do(async e => await Restart(e));
 
             commands.CreateCommand("spam")
-                .Description("<channel> <amount>\n\tSpam a channel XD (mod)")
+                .Description("<amount> <server>\n\tSpam a server XD (mod)")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async e => await Spam(e));
 
@@ -296,7 +291,16 @@ namespace DiscordBot.Main
             {
                 if (e.Message.Text != null && e.Message.Text.Length > 0 && e.Message.Text.Length < 300 && !e.User.IsBot)
                 {
-                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + ": " + e.Message.Text;
+                    var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " deleted: " + e.Message.Text;
+                    MyBot.Log(str, e.Server.Name);
+                }
+            };
+
+            discordClient.MessageUpdated += (s, e) =>
+            {
+                if (e.Before.Text != null && e.Before.Text.Length > 0 && e.Before.Text.Length < 300 && !e.User.IsBot)
+                {
+                    var str = e.Before.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " edited: " + e.Before.Text;
                     MyBot.Log(str, e.Server.Name);
                 }
             };
@@ -500,7 +504,7 @@ namespace DiscordBot.Main
             rpsGame = new RPSGame(commands);
             quizGame = new QuizGame(commands);
             todGame = new TruthOrDare(commands);
-            //music = new MusicHandler(commands, discordClient);
+            music = new MusicHandler(commands, discordClient);
             rpg = new RPGMain(commands, discordClient);
 
             // Connecting to discord server
@@ -1263,13 +1267,13 @@ namespace DiscordBot.Main
         private void Log(object sender, LogMessageEventArgs e)
         {
             var str = DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Severity + " - " + e.Source + ") " + e.Message;
-            File.AppendAllText(@"F:\DiscordBot\log\log.txt", str + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "Logs", "log.txt"), str + Environment.NewLine);
             Console.WriteLine(str);
         }
 
         public static void Log(string s, string filename)
         {
-            File.AppendAllText(Path.Combine(@"F:\DiscordBot\log", filename + "_log.txt"), s + Environment.NewLine);
+            File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "Logs", filename + "_log.txt"), s + Environment.NewLine);
             Console.WriteLine(s);
         }
 
