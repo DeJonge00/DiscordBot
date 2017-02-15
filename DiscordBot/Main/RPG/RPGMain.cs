@@ -281,7 +281,9 @@ namespace DiscordBot.Main.RPG
         public async Task Handle(MessageEventArgs e)
         {
             var data = GetPlayerData(e.User);
-            var i = (int)Math.Round(Math.Pow(data.GetLevel(), 0.25)*Math.Max(5, Math.Min(50, (e.Message.Text.Length/2)-7)));
+            var i = (int)Math.Round(
+                 Math.Pow(data.GetLevel()+1, 1/3)  // levelbonus
+                *Math.Max(0, Math.Min(50, (e.Message.Text.Length-3)/2))); // Textbonus
             data.AddExp(i);
             data.AddMoney(i);
         }
@@ -443,7 +445,6 @@ namespace DiscordBot.Main.RPG
             await e.Message.Delete();
             List<RPGPlayer> sortedplayers = players.OrderBy(o => o.exp).Reverse().ToList();
             var mess = "**RPG Top 5 players**\n```";
-            Console.WriteLine(sortedplayers.Count());
             var num = 5;
             if(e.GetArg("param").Length > 0)
             {

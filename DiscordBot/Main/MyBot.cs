@@ -1235,6 +1235,7 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 rpg.Abort();
+                music.Quit();
                 System.Threading.Thread.Sleep(1000);
                 await discordClient.Disconnect();
             }

@@ -23,6 +23,7 @@ namespace DiscordBot.Main.Music
         public static FFMpegConverter videoconverter;
         private int songcounter;
         private int playedcounter;
+        private bool skipped;
 
         public MusicHandler(CommandService c, DiscordClient dc)
         {
@@ -59,6 +60,11 @@ namespace DiscordBot.Main.Music
                 .Description("Silence the singing Biri")
                 .Do(async (e) => await Silence(e));
 
+            commands.CreateCommand("skip")
+                .Parameter("param", ParameterType.Unparsed)
+                .Description("Skip the current song")
+                .Do(async (e) => await Skip(e));
+
             commands.CreateCommand("summon")
                 .Parameter("param", ParameterType.Unparsed)
                 .Description("Summon Biri to your voice channel")
@@ -71,15 +77,20 @@ namespace DiscordBot.Main.Music
             await e.Message.Delete();
             try
             {
-                var youTube = YouTube.Default; // starting point for YouTube actions
+                var youTube = Client.For(YouTube.Default); // starting point for YouTube actions
                 var video = youTube.GetVideo(e.GetArg("param")); // gets a Video object with info about the video
-                var mp4file = Path.Combine(Environment.CurrentDirectory, "Music", video.FullName);
-                Console.WriteLine(mp4file);
-                File.WriteAllBytes(mp4file, video.GetBytes());
-                var mp3file = Path.Combine(Environment.CurrentDirectory, "Music", songcounter + ".mp3");
-                songcounter++;
-                videoconverter.ConvertMedia(mp4file, mp3file, "mp3");
-                System.IO.File.Delete(mp4file);
+                var vidfile = Path.Combine(Environment.CurrentDirectory, "Music", video.FullName);
+                Console.WriteLine(vidfile);
+                var mp3file = Path.Combine(Environment.CurrentDirectory, "Music", video.Title + ".mp3");
+                if (!File.Exists(mp3file))
+                {
+                    byte[] bytes = await video.GetBytesAsync();
+                    File.WriteAllBytes(vidfile, bytes);
+                    songcounter++;
+                    videoconverter.ConvertMedia(vidfile, mp3file, "mp3");
+                    //File.Delete(vidfile);
+                }
+                queue.Add(new Song(mp3file, video.Title));
                 MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Channel.Name + ") Song added: " + video.FullName, e.Channel.Name + "_log");
             }
             catch (Exception ex)
@@ -93,47 +104,40 @@ namespace DiscordBot.Main.Music
 
         private async Task AddFile(Discord.Commands.CommandEventArgs e)
         {
-            var path = @"C:\Users\dejon\Music\" + e.GetArg("param") + ".mp3";
+            await e.Message.Delete();
+            var param = e.GetArg("param");
+            var path = @"C:\Users\dejon\Music\" +param  + ".mp3";
             if(File.Exists(path))
             {
-                System.IO.File.Copy(path, @"C:\Users\dejon\Music\DiscordBot\" + songcounter + ".mp3");
+                var newpath = Path.Combine(Environment.CurrentDirectory, "Music", param.Split('\\')[param.Split('\\').Length] + ".mp3");
+                if(!File.Exists(newpath))
+                {
+                    File.Copy(path, newpath);
+                }
+                queue.Add(new Song(newpath, e.GetArg("param")));
                 songcounter++;
                 await Play(e);
             }
         }
 
-        private void ClearQueueFromDisk()
-        {
-            var i = 0;
-
-            for (var currentfile = Path.Combine(Environment.CurrentDirectory, "Music", i + ".mp3"); File.Exists(currentfile); i++)
-            {
-                System.IO.File.Delete(currentfile);
-                i++;
-                currentfile = Path.Combine(Environment.CurrentDirectory, "Music", i + ".mp3");
-            }
-            playedcounter = 0;
-            songcounter = 0;
-            Console.WriteLine("Songs deleted from disk");
-        }
-
         private async Task Play(Discord.Commands.CommandEventArgs e)
         {
+            Console.WriteLine("Playing: " + playing);
             if (playing) return;
-            if(discordAudio == null || discordAudio.State != ConnectionState.Connected)
+            Console.WriteLine("DA: " + discordAudio);
+            if (discordAudio == null || discordAudio.Channel != e.User.VoiceChannel)
             {
                 await Summon(e);
             }
             playing = true;
             var currentfile = Path.Combine(Environment.CurrentDirectory, "Music", playedcounter + ".mp3");
-            while (File.Exists(currentfile))
+            for(int i = 0; i<queue.Count; i++)
             {
-                await SendAudio(e.Channel, Path.Combine(Environment.CurrentDirectory, "Music", playedcounter + ".mp3"));
-                playedcounter++;
-                playing = false;
-                ClearQueueFromDisk();
-                await e.Channel.SendMessage("Queue empty!");
+                await SendAudio(e.Channel, queue[i].path, queue[i].title);
             }
+            queue = new List<Song>();
+            playing = false;
+            await e.Channel.SendMessage("Queue empty!");
         }
         
         private async Task Silence(Discord.Commands.CommandEventArgs e)
@@ -151,15 +155,26 @@ namespace DiscordBot.Main.Music
             await discordAudio.Disconnect();
         }
 
-        private async Task Summon(Discord.Commands.CommandEventArgs e)
+        private async Task Skip(Discord.Commands.CommandEventArgs e)
         {
-            voiceChannel = e.User.VoiceChannel;
-
-            discordAudio = await discordClient.GetService<AudioService>() // We use GetService to find the AudioService that we installed earlier. In previous versions, this was equivelent to _client.Audio()
-                    .Join(voiceChannel); // Join the Voice Channel, and return the IAudioClient.
+            if(!playing)
+            {
+                await e.Channel.SendMessage("Im not singing baka!");
+                return;
+            }
+            skipped = true;
+            await e.Channel.SendMessage("Skipping this song!");
         }
 
-        public async Task SendAudio(Channel channel, string filePath)
+        private async Task Summon(Discord.Commands.CommandEventArgs e)
+        {
+            try { await e.Message.Delete(); } catch{}
+            voiceChannel = e.User.VoiceChannel;
+            discordAudio = await discordClient.GetService<AudioService>() // We use GetService to find the AudioService that we installed earlier. In previous versions, this was equivelent to _client.Audio()
+                .Join(voiceChannel); // Join the Voice Channel, and return the IAudioClient.
+        }
+
+        public async Task SendAudio(Channel channel, string filePath, string title)
         {
             try
             {
@@ -173,8 +188,8 @@ namespace DiscordBot.Main.Music
                     int blockSize = OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
                     byte[] buffer = new byte[blockSize];
                     int byteCount;
-
-                    while ((byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
+                    await channel.SendMessage("Playing **" + title + "** now!");
+                    while (playing && !skipped && (byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
                     {
                         if (byteCount < blockSize)
                         {
@@ -184,12 +199,19 @@ namespace DiscordBot.Main.Music
                         }
                         discordAudio.Send(buffer, 0, blockSize); // Send the buffer to Discord
                     }
+                    if (skipped) skipped = false;
                 }
             } catch (Exception e)
             {
                 await channel.SendMessage("Something went teribly wrong.. ABORT ABORT \\o/");
                 Console.WriteLine(e.StackTrace);
             }
+        }
+
+        public void Quit()
+        {
+            playing = false;
+            discordAudio.Disconnect();
         }
     }
 }
