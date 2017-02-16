@@ -1,21 +1,13 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using Discord.Commands;
 using System.IO;
-using System.Threading;
 using System.Net;
 
 namespace DiscordBot.Main
 {
     class MessageHandler
     {
-        private string statsFile = @"F:\DiscordBot\stats\interaction.bin";
-        private Thread runningThread;
         private int counter = 0;
 
         private int sunLock;
@@ -35,6 +27,7 @@ namespace DiscordBot.Main
 
         internal async Task Handle(MessageEventArgs e)
         {
+            if (Constants.user != "NYA") return;
             if (e.Message.Text.Split(' ')[0] == "\\o/")
             {
                 await PraiseTheSun(e);

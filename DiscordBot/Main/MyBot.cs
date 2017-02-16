@@ -55,7 +55,13 @@ namespace DiscordBot.Main
 
             discordClient.UsingCommands(x =>
             {
-                x.PrefixChar = '>';
+                if (Constants.user == "NYA")
+                {
+                    x.PrefixChar = '>';
+                } else
+                {
+                    x.PrefixChar = '_';
+                }
                 x.AllowMentionPrefix = false;
                 x.HelpMode = HelpMode.Disabled;
             });
@@ -517,7 +523,13 @@ namespace DiscordBot.Main
                 {
                     Console.WriteLine("Connecting failed");
                 }
-                discordClient.SetGame("with loli's <3");
+                if (Constants.user == "NYA")
+                {
+                    discordClient.SetGame("with loli's <3");
+                } else
+                {
+                    discordClient.SetGame("with cera");
+                }
                 discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
         }
@@ -1260,7 +1272,7 @@ namespace DiscordBot.Main
                 }
                 s += commands.AllCommands.ElementAt(i).Text + " " + commands.AllCommands.ElementAt(i).Description + "\n";
             }
-            s += "```\n*If anything does not seem to work as it is supposed to: msg NYA-CHAN*";
+            s += "```\n*If anything does not seem to work as it is supposed to: msg " + Constants.user + "*";
             await e.User.SendMessage(s);
         }
 

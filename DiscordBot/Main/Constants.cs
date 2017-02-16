@@ -7,8 +7,13 @@ namespace DiscordBot.Main
 {
     static class Constants
     {
+        // KAPPA BB <3
+        public static string user = "NYA";
+        //public static string user = "KAPPA";
+
         // Stuff
         public static string botToken = "MjQ0NDEwOTY0NjkzMjIxMzc3.Cv9KRg.HltvxZMWG5uHF9p9JTz95jWW_h8";
+        //public static string botToken = "";
         public static string gameStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "stats.bin");
         public static string rpgStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "rpgstats.bin");
         // Bots
@@ -27,19 +32,6 @@ namespace DiscordBot.Main
         public static ulong CATEid = 183977132622348288;
 
         // Games
-        // Biribiri interaction
-        public static string[] karmaResponse =
-        {
-            "My love :heart:",              // Nya-only
-            "You devil :imp:",              // #-2
-            "Meanie :angry:",               // #-1
-            "",                             // #0
-            "Good boi :smiley:",            // #1
-            "Cuty",                         // #2
-            "Sweetheart <3"                 // #3
-            
-        };
-
         // Music guessing
         private static GuessingSong mob99 = new GuessingSong("https://www.youtube.com/watch?v=M4uCRncR3_w", "99", "Mob Choir", "Mob Psycho 100");
         private static GuessingSong coolest = new GuessingSong("https://www.youtube.com/watch?v=f8d3bW42aFY", "Coolest", "Customi Z", "Sakamoto");

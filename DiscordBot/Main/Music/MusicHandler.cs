@@ -55,6 +55,11 @@ namespace DiscordBot.Main.Music
                 .Description("Play the current queue")
                 .Do(async (e) => await Play(e));
 
+            commands.CreateCommand("queue")
+                .Parameter("param", ParameterType.Unparsed)
+                .Description("List the queued music")
+                .Do(async (e) => await Queue(e));
+
             commands.CreateCommand("silence")
                 .Parameter("param", ParameterType.Unparsed)
                 .Description("Silence the singing Biri")
@@ -88,7 +93,7 @@ namespace DiscordBot.Main.Music
                     File.WriteAllBytes(vidfile, bytes);
                     songcounter++;
                     videoconverter.ConvertMedia(vidfile, mp3file, "mp3");
-                    //File.Delete(vidfile);
+                    File.Delete(vidfile);
                 }
                 queue.Add(new Song(mp3file, video.Title));
                 MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Channel.Name + ") Song added: " + video.FullName, e.Channel.Name + "_log");
@@ -106,40 +111,54 @@ namespace DiscordBot.Main.Music
         {
             await e.Message.Delete();
             var param = e.GetArg("param");
-            var path = @"C:\Users\dejon\Music\" +param  + ".mp3";
-            if(File.Exists(path))
+            var path = @"C:\Users\dejon\Music\" + param  + ".mp3";
+            var name = param.Split('\\')[param.Split('\\').Length-1];
+            if (File.Exists(path))
             {
-                var newpath = Path.Combine(Environment.CurrentDirectory, "Music", param.Split('\\')[param.Split('\\').Length] + ".mp3");
+                var newpath = Path.Combine(Environment.CurrentDirectory, "Music", name.ToLower() + ".mp3");
                 if(!File.Exists(newpath))
                 {
+                    Console.WriteLine(path);
                     File.Copy(path, newpath);
+                    Console.WriteLine(newpath);
                 }
-                queue.Add(new Song(newpath, e.GetArg("param")));
-                songcounter++;
+                queue.Add(new Song(newpath, name));
                 await Play(e);
+            } else
+            {
+                await e.Channel.SendMessage("Could not find file: " + param);
             }
         }
 
         private async Task Play(Discord.Commands.CommandEventArgs e)
         {
-            Console.WriteLine("Playing: " + playing);
             if (playing) return;
-            Console.WriteLine("DA: " + discordAudio);
             if (discordAudio == null || discordAudio.Channel != e.User.VoiceChannel)
             {
                 await Summon(e);
             }
             playing = true;
-            var currentfile = Path.Combine(Environment.CurrentDirectory, "Music", playedcounter + ".mp3");
-            for(int i = 0; i<queue.Count; i++)
+            while(queue.Count>0)
             {
-                await SendAudio(e.Channel, queue[i].path, queue[i].title);
+                await SendAudio(e.Channel, queue[0].path, queue[0].title);
+                queue.RemoveAt(0);
             }
+            await discordAudio.Disconnect();
             queue = new List<Song>();
             playing = false;
             await e.Channel.SendMessage("Queue empty!");
         }
-        
+
+        private async Task Queue(Discord.Commands.CommandEventArgs e)
+        {
+            var msg = "";
+            foreach(Song s in queue)
+            {
+                msg += s.title + "\n";
+            }
+            await e.Channel.SendMessage(msg);
+        }
+
         private async Task Silence(Discord.Commands.CommandEventArgs e)
         {
             if(e.User.VoiceChannel != voiceChannel)
@@ -189,6 +208,7 @@ namespace DiscordBot.Main.Music
                     byte[] buffer = new byte[blockSize];
                     int byteCount;
                     await channel.SendMessage("Playing **" + title + "** now!");
+                    MyBot.Log("Playing **" + title + "** now!", "music_log");
                     while (playing && !skipped && (byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
                     {
                         if (byteCount < blockSize)
@@ -211,7 +231,6 @@ namespace DiscordBot.Main.Music
         public void Quit()
         {
             playing = false;
-            discordAudio.Disconnect();
         }
     }
 }
