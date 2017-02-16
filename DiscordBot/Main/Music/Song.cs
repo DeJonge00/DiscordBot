@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DiscordBot.Main.Music
+﻿namespace DiscordBot.Main.Music
 {
     class Song
     {
         public string path;
         public string title;
+        public string user;
 
-        public Song(string path, string name)
+        public Song(string path, string name, string username)
         {
             this.path = path;
             title = name;
+            user = username;
         }
     }
 }

@@ -95,7 +95,7 @@ namespace DiscordBot.Main.Music
                     videoconverter.ConvertMedia(vidfile, mp3file, "mp3");
                     File.Delete(vidfile);
                 }
-                queue.Add(new Song(mp3file, video.Title));
+                queue.Add(new Song(mp3file, video.Title, e.User.Name));
                 MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Channel.Name + ") Song added: " + video.FullName, e.Channel.Name + "_log");
             }
             catch (Exception ex)
@@ -122,7 +122,7 @@ namespace DiscordBot.Main.Music
                     File.Copy(path, newpath);
                     Console.WriteLine(newpath);
                 }
-                queue.Add(new Song(newpath, name));
+                queue.Add(new Song(newpath, name, e.User.Name));
                 await Play(e);
             } else
             {
@@ -138,9 +138,10 @@ namespace DiscordBot.Main.Music
                 await Summon(e);
             }
             playing = true;
+            Console.WriteLine(queue.Count);
             while(queue.Count>0)
             {
-                await SendAudio(e.Channel, queue[0].path, queue[0].title);
+                await SendAudio(e.Channel, queue[0]);
                 queue.RemoveAt(0);
             }
             await discordAudio.Disconnect();
@@ -151,10 +152,10 @@ namespace DiscordBot.Main.Music
 
         private async Task Queue(Discord.Commands.CommandEventArgs e)
         {
-            var msg = "";
-            foreach(Song s in queue)
+            var msg = "The awesome music queue: (" + queue.Count + " songs in the queue)";
+            for(int i = 0; i < queue.Count && i < 10; i++)
             {
-                msg += s.title + "\n";
+                msg += "\n" + (i+1) + "\t" + queue[i].title + ", requested by: *" + queue[i].user + "*";
             }
             await e.Channel.SendMessage(msg);
         }
@@ -187,28 +188,34 @@ namespace DiscordBot.Main.Music
 
         private async Task Summon(Discord.Commands.CommandEventArgs e)
         {
-            try { await e.Message.Delete(); } catch{}
-            voiceChannel = e.User.VoiceChannel;
-            discordAudio = await discordClient.GetService<AudioService>() // We use GetService to find the AudioService that we installed earlier. In previous versions, this was equivelent to _client.Audio()
-                .Join(voiceChannel); // Join the Voice Channel, and return the IAudioClient.
+            try { await e.Message.Delete(); } catch{ /* NO ERROR HANDLING OMG!!! o_o */}
+            try
+            {
+                voiceChannel = e.User.VoiceChannel;
+                discordAudio = await discordClient.GetService<AudioService>() // We use GetService to find the AudioService that we installed earlier. In previous versions, this was equivelent to _client.Audio()
+                    .Join(voiceChannel); // Join the Voice Channel, and return the IAudioClient.
+            } catch (Exception ex)
+            {
+                await e.Channel.SendMessage("Cannot join voicechannel cuz discord is being a bitch :D");
+            }
         }
 
-        public async Task SendAudio(Channel channel, string filePath, string title)
+        public async Task SendAudio(Channel channel, Song song)
         {
             try
             {
-                MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + channel.Name + ") Song playing: " + filePath, channel.Name + "_log");
+                MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + channel.Name + ") Song playing: " + song.path, channel.Name + "_log");
                 var channelCount = discordClient.GetService<AudioService>().Config.Channels; // Get the number of AudioChannels our AudioService has been configured to use.
                 var OutFormat = new WaveFormat(48000, 16, 2); // Create a new Output Format, using the spec that Discord will accept, and with the number of channels that our client supports.
-                using (var MP3Reader = new Mp3FileReader(filePath)) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
+                using (var MP3Reader = new Mp3FileReader(song.path)) // Create a new Disposable MP3FileReader, to read audio from the filePath parameter
                 using (var resampler = new MediaFoundationResampler(MP3Reader, OutFormat)) // Create a Disposable Resampler, which will convert the read MP3 data to PCM, using our Output Format
                 {
                     resampler.ResamplerQuality = 60; // Set the quality of the resampler to 60, the highest quality
                     int blockSize = OutFormat.AverageBytesPerSecond / 50; // Establish the size of our AudioBuffer
                     byte[] buffer = new byte[blockSize];
                     int byteCount;
-                    await channel.SendMessage("Playing **" + title + "** now!");
-                    MyBot.Log("Playing **" + title + "** now!", "music_log");
+                    await channel.SendMessage("Playing *" + song.user + "'s* song **" + song.title + "** now!");
+                    MyBot.Log("Playing *" + song.user + "'s* song **" + song.title + "** now!", "music_log");
                     while (playing && !skipped && (byteCount = resampler.Read(buffer, 0, blockSize)) > 0) // Read audio into our buffer, and keep a loop open while data is present
                     {
                         if (byteCount < blockSize)
