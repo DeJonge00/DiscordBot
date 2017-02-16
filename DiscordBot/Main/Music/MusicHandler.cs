@@ -80,6 +80,17 @@ namespace DiscordBot.Main.Music
         private async Task Add(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
+            if(playing && e.User.VoiceChannel != voiceChannel)
+            {
+                await e.Channel.SendMessage("Join vc NOW :angry:");
+                return;
+            }
+            var param = e.GetArg("param");
+            if(param.Length<=0)
+            {
+                await e.Channel.SendMessage("I cannot add nothing to the queue");
+                return;
+            }
             try
             {
                 var youTube = Client.For(YouTube.Default); // starting point for YouTube actions
@@ -96,6 +107,7 @@ namespace DiscordBot.Main.Music
                     File.Delete(vidfile);
                 }
                 queue.Add(new Song(mp3file, video.Title, e.User.Name));
+                await e.Channel.SendMessage("**" + video.Title + "** has been added to the queue by *" + e.User.Name + "*!");
                 MyBot.Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Channel.Name + ") Song added: " + video.FullName, e.Channel.Name + "_log");
             }
             catch (Exception ex)
@@ -110,24 +122,27 @@ namespace DiscordBot.Main.Music
         private async Task AddFile(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
+            if (playing && e.User.VoiceChannel != voiceChannel)
+            {
+                await e.Channel.SendMessage("Join vc NOW :angry:");
+                return;
+            }
             var param = e.GetArg("param");
+            if (param.Length <= 0)
+            {
+                await e.Channel.SendMessage("I cannot add nothing to the queue");
+                return;
+            }
             var path = @"C:\Users\dejon\Music\" + param  + ".mp3";
             var name = param.Split('\\')[param.Split('\\').Length-1];
-            if (File.Exists(path))
-            {
-                var newpath = Path.Combine(Environment.CurrentDirectory, "Music", name.ToLower() + ".mp3");
-                if(!File.Exists(newpath))
-                {
-                    Console.WriteLine(path);
-                    File.Copy(path, newpath);
-                    Console.WriteLine(newpath);
-                }
-                queue.Add(new Song(newpath, name, e.User.Name));
-                await Play(e);
-            } else
+            if (!File.Exists(path))
             {
                 await e.Channel.SendMessage("Could not find file: " + param);
+                return;
             }
+            queue.Add(new Song(path, name, e.User.Name));
+            await e.Channel.SendMessage("**" + name + "** has been added to the queue by *" + e.User.Name + "*!");
+            await Play(e);
         }
 
         private async Task Play(Discord.Commands.CommandEventArgs e)
@@ -164,7 +179,7 @@ namespace DiscordBot.Main.Music
         {
             if(e.User.VoiceChannel != voiceChannel)
             {
-                await e.Channel.SendMessage("You are not even listsning to me!");
+                await e.Channel.SendMessage("You are not even listening to me!");
                 return;
             }
             if(discordAudio == null || discordAudio.State != ConnectionState.Connected)
@@ -182,6 +197,10 @@ namespace DiscordBot.Main.Music
                 await e.Channel.SendMessage("Im not singing baka!");
                 return;
             }
+            if(e.User.Name != queue[0].user && e.User.Id != Constants.NYAid)
+            {
+                await e.Channel.SendMessage("Who are you to skip this beautifull song??");
+            }
             skipped = true;
             await e.Channel.SendMessage("Skipping this song!");
         }
@@ -189,12 +208,17 @@ namespace DiscordBot.Main.Music
         private async Task Summon(Discord.Commands.CommandEventArgs e)
         {
             try { await e.Message.Delete(); } catch{ /* NO ERROR HANDLING OMG!!! o_o */}
+            if(e.User.VoiceChannel == null)
+            {
+                await e.Channel.SendMessage("Join a voicechannel first, you dummy");
+                return;
+            }
             try
             {
                 voiceChannel = e.User.VoiceChannel;
                 discordAudio = await discordClient.GetService<AudioService>() // We use GetService to find the AudioService that we installed earlier. In previous versions, this was equivelent to _client.Audio()
                     .Join(voiceChannel); // Join the Voice Channel, and return the IAudioClient.
-            } catch (Exception ex)
+            } catch
             {
                 await e.Channel.SendMessage("Cannot join voicechannel cuz discord is being a bitch :D");
             }

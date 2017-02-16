@@ -240,3 +240,9 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+
+*.txt
+*.bin
+*.mp3
+*.webm
+*.mp4

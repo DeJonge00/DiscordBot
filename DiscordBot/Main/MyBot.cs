@@ -491,19 +491,22 @@ namespace DiscordBot.Main
                 MyBot.Log(message, e.Server.Name);
             };
 
-            discordClient.UserJoined += async (s, e) =>
+            if(Constants.user == "NYA")
             {
-                var str = "Welcome " + e.User.Mention + "!!! :cate:";
-                // e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
-                Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + "Welcome " + e.User.Name + "!!! :cate:", e.Server.Name);
-            };
+                discordClient.UserJoined += async (s, e) =>
+                {
+                    var str = "Welcome " + e.User.Mention + "!!! :cate:";
+                    // e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
+                    Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + "Welcome " + e.User.Name + "!!! :cate:", e.Server.Name);
+                };
 
-            discordClient.UserLeft += async (s, e) =>
-            {
-                var str = "Im sorry to say that \"" + e.User.Name + "\" just left :sob: :sob:";
-                await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
-                Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
-            };
+                discordClient.UserLeft += async (s, e) =>
+                {
+                    var str = "\"" + e.User.Name + "\" just left, goodbye degenerate lowlife!";
+                    await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
+                    Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
+                };
+            }
 
             handler = new MessageHandler();
             //guessingGame = new GuessingGame(commands);
@@ -526,9 +529,12 @@ namespace DiscordBot.Main
                 if (Constants.user == "NYA")
                 {
                     discordClient.SetGame("with loli's <3");
-                } else
+                } else if(Constants.user == "KAPPA")
                 {
                     discordClient.SetGame("with cera");
+                } else
+                {
+                    discordClient.SetGame("with magic");
                 }
                 discordClient.SetStatus(UserStatus.DoNotDisturb.Value);
             });
