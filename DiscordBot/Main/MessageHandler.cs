@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord;
 using System.IO;
 using System.Net;
+using System;
 
 namespace DiscordBot.Main
 {
@@ -11,6 +12,7 @@ namespace DiscordBot.Main
         private int counter = 0;
 
         private int sunLock;
+        private DateTime suntime;
         private int kysLock;
         private int dedLock;
         private int helloLock;
@@ -19,6 +21,7 @@ namespace DiscordBot.Main
         public MessageHandler()
         {
             sunLock = -1;
+            suntime = new DateTime(0);
             kysLock = -1;
             dedLock = -1;
             helloLock = -1;
@@ -132,7 +135,7 @@ namespace DiscordBot.Main
                 }
                 
                 // Mentioned biribiri
-                if (e.Message.MentionedUsers.Count() > 0 && e.Message.IsMentioningMe() || e.Message.Text.ToLower().Split(' ').Contains("biribiri") || e.Message.Text.ToLower().Split(' ').Contains("biri") || e.Message.Text.ToLower().Split(' ').Contains("biri,") || e.Message.Text.ToLower().Split(' ').Contains("biribiri,"))
+                if (!char.IsSymbol(e.Message.Text[0]) && (e.Message.MentionedUsers.Count() > 0 && e.Message.IsMentioningMe() || e.Message.Text.ToLower().Split(' ').Contains("biribiri") || e.Message.Text.ToLower().Split(' ').Contains("biri") || e.Message.Text.ToLower().Split(' ').Contains("biri,") || e.Message.Text.ToLower().Split(' ').Contains("biribiri,")))
                 {
                     var text = e.Message.Text.ToLower().Split(' ');
                     string returnstr = "NO!";
@@ -186,6 +189,9 @@ namespace DiscordBot.Main
         private async Task PraiseTheSun(MessageEventArgs e)
         {
             await e.Message.Delete();
+            var time = e.Message.Timestamp;
+            if (time.Subtract(suntime).Minutes < 5) return;
+            suntime = time;
             int i;
             do
             {

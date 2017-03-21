@@ -16,6 +16,8 @@ namespace DiscordBot.Main
         //public static string botToken = "";
         public static string gameStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "stats.bin");
         public static string rpgStatsFile = Path.Combine(Environment.CurrentDirectory, "Stats", "rpgstats.bin");
+        public static string marryFile = Path.Combine(Environment.CurrentDirectory, "Stats", "marry.bin");
+
         // Bots
         public static ulong BIRIBIRIid = 244410964693221377;
         public static ulong MIKIid = 109379894718234624;

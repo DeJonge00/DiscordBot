@@ -38,7 +38,6 @@ namespace DiscordBot.Main
                 await e.Channel.SendMessage("A game is already being played in another channel :/");
                 return;
             }
-            await e.Message.Delete();
             var param = e.GetArg("param").Split(' ');
             if (param.Length <= 0)
             {
@@ -138,7 +137,7 @@ namespace DiscordBot.Main
                     return;
                 }
                 players.AddRange(e.Message.MentionedUsers);
-                await channel.SendMessage("The game now has " + players.Count() + " players!\n" + gamesLeft + "rounds to go!");
+                await channel.SendMessage("The game now has " + players.Count() + " players!\n" + gamesLeft + " rounds to go!");
                 return;
             }
             await e.Channel.SendMessage("Something went wrong with your arguments XD");

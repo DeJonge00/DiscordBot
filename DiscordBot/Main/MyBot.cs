@@ -25,6 +25,8 @@ namespace DiscordBot.Main
         private QuizGame quizGame;
         private RPSGame rpsGame;
         private TruthOrDare todGame;
+        private List<Family> marriages;
+        private List<Proposal> proposals;
 
         // Duplicate saving
         private int biribiriLock = -1;
@@ -200,6 +202,11 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Picture(e));
 
+            commands.CreateCommand("platform")
+                .Description("\n\tSwitch platform (Rocket League server only)")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await Platform(e));
+
             commands.CreateCommand("sing")
                 .Description("<songname>\n\tLet me sing a song for you")
                 .Parameter("param", ParameterType.Unparsed)
@@ -209,6 +216,11 @@ namespace DiscordBot.Main
                 .Description("\n\tPrint tableflip / unflip")
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Table(e));
+
+            commands.CreateCommand("userinfo")
+                .Description("\n\tRead a user's info")
+                .Parameter("param", ParameterType.Unparsed)
+                .Do(async (e) => await UserInfo(e));
 
             commands.CreateCommand("y tho")
                 .Alias("ytho")
@@ -247,11 +259,6 @@ namespace DiscordBot.Main
                 .Parameter("param", ParameterType.Unparsed)
                 .Do(async (e) => await Quit(e));
 
-            commands.CreateCommand("ban")
-                .Description("\n\tBan a user (mod)")
-                .Parameter("param", ParameterType.Unparsed)
-                .Do(async (e) => await Ban(e));
-
             commands.CreateCommand("clean")
                 .Description("\n\tRemove messages of Biribiri (mod)")
                 .Parameter("param", ParameterType.Unparsed)
@@ -282,6 +289,13 @@ namespace DiscordBot.Main
                     {
                         await quizGame.Handle(e);
                     }
+                    foreach(Proposal p in proposals)
+                    {
+                        if (e.User == p.b)
+                        {
+                            HandleProposal(p, e.Message.Text);
+                        }
+                    }
                     if (!e.Channel.IsPrivate)
                     {
                         await handler.Handle(e);
@@ -295,7 +309,7 @@ namespace DiscordBot.Main
 
             discordClient.MessageDeleted += (s, e) =>
             {
-                if (e.Message.Text != null && e.Message.Text.Length > 0 && e.Message.Text.Length < 300 && !e.User.IsBot)
+                if (e.Message.Text != null && e.Message.Text.Length > 0 && e.Message.Text.Length < 300)
                 {
                     var str = e.Message.Timestamp.ToShortTimeString() + " - " + e.Channel.Name + ") " + e.User.Name + " deleted: " + e.Message.Text;
                     MyBot.Log(str, e.Server.Name);
@@ -491,7 +505,7 @@ namespace DiscordBot.Main
                 MyBot.Log(message, e.Server.Name);
             };
 
-            if(Constants.user == "NYA")
+           if(Constants.user == "NYA")
             {
                 discordClient.UserJoined += async (s, e) =>
                 {
@@ -502,8 +516,21 @@ namespace DiscordBot.Main
 
                 discordClient.UserLeft += async (s, e) =>
                 {
-                    var str = "\"" + e.User.Name + "\" just left, goodbye degenerate lowlife!";
-                    await e.Server.FindChannels("general").FirstOrDefault().SendMessage(str);
+                    var str = "\"" + e.User.Name + "\" just left, you might be missed! (maybe)";
+                    try
+                    {
+                        await e.Server.FindChannels("lobby").FirstOrDefault().SendMessage(str);
+                    } catch {
+                        try
+                        {
+                            await e.Server.FindChannels("lobby").FirstOrDefault().SendMessage(str);
+                        }
+                        catch
+                        {
+                            Console.WriteLine("UserLeft notification sending failed");
+                        }
+                    }
+                    
                     Log(DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Server.Name + ") " + str, e.Server.Name);
                 };
             }
@@ -515,6 +542,8 @@ namespace DiscordBot.Main
             todGame = new TruthOrDare(commands);
             music = new MusicHandler(commands, discordClient);
             rpg = new RPGMain(commands, discordClient);
+            LoadMarriages();
+            proposals = new List<Proposal>();
 
             // Connecting to discord server
             discordClient.ExecuteAndWait(async () =>
@@ -541,22 +570,6 @@ namespace DiscordBot.Main
         }
 
         // Command functions
-        private async Task Ban(Discord.Commands.CommandEventArgs e)
-        {
-            await e.Message.Delete();
-            if (e.User.Id != Constants.NYAid)
-            {
-                await e.Channel.SendMessage("Only NYA-sama can tell me what to do!");
-                return;
-            }
-            if (e.Message.MentionedUsers.Count() <= 0)
-            {
-                await e.Channel.SendMessage("Banning user: " + e.GetArg("param"));
-                return;
-            }
-            await e.Message.MentionedUsers.ElementAt(0).SendMessage("You got banned lolololol :joy:");
-        }
-
         private async Task Biribiri(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -844,6 +857,19 @@ namespace DiscordBot.Main
             await e.Message.Delete();
         }
 
+        private async Task Divorce(Discord.Commands.CommandEventArgs e)
+        {
+            Family f;
+            if((f = GetMarriage(e.User)) == null)
+            {
+                await e.Channel.SendMessage("It appears you are not loved enough to get married in the first place");
+                return;
+            }
+            marriages.Remove(f);
+            await e.Channel.SendMessage("You are now officially single");
+            await f.so(e.User).SendMessage("Your partner has divorced you, get REKT");
+        }
+
         private async Task Face(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -1007,6 +1033,34 @@ namespace DiscordBot.Main
             await e.Channel.SendMessage(str);
         }
 
+        private async Task Marry(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            Family m;
+            if ((m = GetMarriage(e.User)) != null)
+                await e.Channel.SendMessage("You are currently married to **" + m.so(e.User).Name + "**!");
+
+            if (e.Message.MentionedUsers.Count() <= 0)
+            {
+                await e.Channel.SendMessage("You are currently a lonely single!");
+                return;
+            }
+            User other = e.Message.MentionedUsers.ElementAt(0);
+            if(e.User == other)
+            {
+                await e.Channel.SendMessage("So it seems like nobody wants you?");
+                return;
+            }
+            if ((m=GetMarriage(other)) != null)
+            {
+                await e.Channel.SendMessage("The person you are trying to marry is currently married to **" + m.so(other) + "**!");
+                return;
+            }
+            // Get married
+            proposals.Add(new Proposal(other, e.User, e.Channel));
+            await e.Channel.SendMessage(other.Mention + ", do you want to marry " + e.User.Name + "?\nSay \"I do\" to accept!");
+        }
+
         private async Task Ping(Discord.Commands.CommandEventArgs e)
         {
             await e.Message.Delete();
@@ -1048,6 +1102,47 @@ namespace DiscordBot.Main
                 return;
             }
             await e.Channel.SendMessage("Give me a valid user or the servername as parameter pl0x");
+        }
+
+        private async Task Platform(Discord.Commands.CommandEventArgs e)
+        {
+            
+            if (e.Server.Name != "Rocket League Plaza")
+                return;
+            await e.Message.Delete();
+            var platform = e.GetArg("param").ToLower();
+            Role role;
+            switch (platform)
+            {
+                case "ps":
+                case "playstation":
+                case "ps4":
+                case "ps3":
+                    role = e.Server.FindRoles("PS4").ElementAt(0);
+                    break;
+                case "xbox":
+                case "xbox one":
+                case "xbone":
+                    role = e.Server.FindRoles("XBOX").ElementAt(0);
+                    break;
+                case "pc":
+                    role = e.Server.FindRoles("PC").ElementAt(0);
+                    break;
+                default:
+                    await e.Channel.SendMessage("Platform unknown");
+                    return;
+            }
+
+            if (e.User.HasRole(role))
+            {
+                await e.User.RemoveRoles(role);
+                await e.User.SendMessage("The role " + role.Name + " has been removed from you!");
+            }
+            else
+            {
+                await e.User.AddRoles(role);
+                await e.User.SendMessage("The role " + role.Name + " has been assigned to you!");
+            }
         }
 
         private async Task Restart(Discord.Commands.CommandEventArgs e)
@@ -1189,32 +1284,27 @@ namespace DiscordBot.Main
             if (e.User.Id == Constants.NYAid)
             {
                 var param = e.GetArg("param").Split(' ');
+                Channel channel;
                 if (param.Count() <= 2)
-                    return;
-                try
                 {
-                    var amount = 1;
-                    var messages = new List<Message>();
-                    Int32.TryParse(param[0], out amount);
-                    for (int i = 0; i < amount; i++)
-                    {
-                        try
-                        {
-                            await discordClient.FindServers(param[1]).First().FindChannels(param[2]).First().SendIsTyping();
-                            System.Threading.Thread.Sleep(9000);
-                        } catch
-                        {
-                            Console.WriteLine("Channel not found");
-                            return;
-                        }
-                    }
-                    
-                    foreach (Message m in messages)
-                        await m.Delete();
+                    channel = e.Channel;
+                } else
+                {
+                    channel = discordClient.FindServers(param[1]).First().FindChannels(param[2]).First();
                 }
-                catch
+                var amount = 1;
+                Int32.TryParse(param[0], out amount);
+                for (int i = 0; i < amount; i++)
                 {
-                    await e.Channel.SendMessage("Spamming failed");
+                    try
+                    {
+                        await channel.SendIsTyping();
+                        System.Threading.Thread.Sleep(9000);
+                    } catch
+                    {
+                        Console.WriteLine("Channel not found");
+                        return;
+                    }
                 }
             }
         }
@@ -1224,6 +1314,45 @@ namespace DiscordBot.Main
             await e.Message.Delete();
             var s = "(╯°□°）╯︵ ┻━┻\n┬─┬﻿ ノ( ゜-゜ノ)";
             await e.Channel.SendMessage(s);
+        }
+
+        private async Task UserInfo(Discord.Commands.CommandEventArgs e)
+        {
+            await e.Message.Delete();
+            User user;
+            if (e.Message.MentionedUsers.Count() <= 0)
+            {
+                user = e.User;
+            }
+            else
+            {
+                user = e.Message.MentionedUsers.ElementAt(0);
+            }
+            var message = "**Userinfo:                 " + user.Name + "**```";
+            if(user.IsBot)
+            {
+                message += "\nThis user is a bot";
+            }
+            message += "\nStatus:         " + user.Status;
+            if (user.Nickname != null)
+            {
+                message += "\nNickname:       " + user.Nickname;
+            }
+            if(user.CurrentGame != null)
+            {
+                message += "\nNow playing:    " + user.CurrentGame.Value.Name;
+            }
+            message += "\nUser ID:        " + user.Id;
+            message += "\nJoin date:      " + user.JoinedAt;
+            message += "\nLast activity:  " + user.LastActivityAt;
+            message += "\nRoles:          " + user.Roles.ElementAt(0);
+            for (int i = 1; i < user.Roles.Count(); i++)
+            {
+                message += ", " + user.Roles.ElementAt(i);
+            }
+            message += "```";
+
+            await e.Channel.SendMessage(message);
         }
 
         private async Task YTho(Discord.Commands.CommandEventArgs e)
@@ -1252,6 +1381,7 @@ namespace DiscordBot.Main
             await e.Message.Delete();
             if (e.User.Id == Constants.NYAid)
             {
+                SaveMarriages();
                 rpg.Abort();
                 music.Quit();
                 System.Threading.Thread.Sleep(1000);
@@ -1278,11 +1408,49 @@ namespace DiscordBot.Main
                 }
                 s += commands.AllCommands.ElementAt(i).Text + " " + commands.AllCommands.ElementAt(i).Description + "\n";
             }
-            s += "```\n*If anything does not seem to work as it is supposed to: msg " + Constants.user + "*";
+            s += "```\n*If anything does not seem to work as it is supposed to: msg NYA-CHAN#2698*";
             await e.User.SendMessage(s);
         }
 
         // Methods
+        private Family GetMarriage(User u)
+        {
+            foreach (Family m in marriages)
+                if (m.a == u || m.b == u) return m;
+            return null;
+        }
+
+        private void HandleProposal(Proposal p, String m)
+        {
+            string[] accept = { "i do", "ido", "i accept", "accept", "yes", "yus", "ok" };
+            if(accept.Contains(m.ToLower()))
+            {
+                marriages.Add(new Family(p.a, p.b));
+                p.c.SendMessage("Sounded good enough!\n" + p.a.Name + " and " + p.b.Name + " are now officially married!!!");
+            } else
+            {
+                p.c.SendMessage("Sounded like you got rejected really bad " + p.a.Name + "!\nHahaha :smile:");
+            }
+            proposals.Remove(p);
+        }
+
+        private void LoadMarriages()
+        {
+            try
+            {
+                using (Stream stream = File.Open(Constants.marryFile, FileMode.Open))
+                {
+                    var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    marriages = (List<Family>)bformatter.Deserialize(stream);
+                }
+                Console.WriteLine(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") LOADED MARIAGES");
+            }
+            catch (Exception e)
+            {
+                marriages = new List<Family>();
+            }
+        }
+
         private void Log(object sender, LogMessageEventArgs e)
         {
             var str = DateTime.Now.ToUniversalTime().ToShortTimeString() + " - " + e.Severity + " - " + e.Source + ") " + e.Message;
@@ -1301,6 +1469,25 @@ namespace DiscordBot.Main
             if (String.IsNullOrEmpty(input))
                 throw new ArgumentException("ARGH!");
             return input.First().ToString().ToUpper() + String.Join("", input.Skip(1));
+        }
+
+        private void SaveMarriages()
+        {
+            try
+            {
+                //serialize
+                using (Stream stream = File.Open(Constants.rpgStatsFile, FileMode.Create))
+                {
+                    var bformatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                    bformatter.Serialize(stream, marriages);
+                }
+                Console.WriteLine(DateTime.Now.ToUniversalTime().ToShortTimeString() + ") SAVED MARRIAGES");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in saving");
+                Console.WriteLine(ex.StackTrace);
+            }
         }
     }
 }
