@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace DiscordBot.Main
 {
+    [Serializable]
     class Family
     {
         public User a;

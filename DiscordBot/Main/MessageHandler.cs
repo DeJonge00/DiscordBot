@@ -79,7 +79,7 @@ namespace DiscordBot.Main
 
                 if (e.Message.User.Id == Constants.WIZZid)
                     return;
-                if (e.Message.Text.ToLower() == "ayy")
+                if (e.Message.Text.ToLower() == "ayy" && e.User.Id == Constants.NYAid)
                 {
                     await e.Channel.SendMessage("lmao");
                 }

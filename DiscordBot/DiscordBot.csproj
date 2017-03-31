@@ -124,20 +124,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main\Constants.cs" />
+    <Compile Include="Main\Families\Families.cs" />
     <Compile Include="Main\GameObjects\GuessingSong.cs" />
     <Compile Include="Main\GameObjects\GuessingGame.cs" />
     <Compile Include="Main\GameObjects\QuizGame.cs" />
     <Compile Include="Main\GameObjects\QuizQuestion.cs" />
     <Compile Include="Main\GameObjects\RPSGame.cs" />
     <Compile Include="Main\GameObjects\TruthOrDare.cs" />
-    <Compile Include="Main\Family.cs" />
+    <Compile Include="Main\Families\Family.cs" />
     <Compile Include="Main\MessageHandler.cs" />
     <Compile Include="Main\Music\MusicHandler.cs" />
     <Compile Include="Main\Music\Song.cs" />
     <Compile Include="Main\MyBot.cs" />
     <Compile Include="Main\GameObjects\PointDB.cs" />
     <Compile Include="Main\Program.cs" />
-    <Compile Include="Main\Proposal.cs" />
+    <Compile Include="Main\Families\Proposal.cs" />
     <Compile Include="Main\Responses.cs" />
     <Compile Include="Main\RPG\RPGCharacter.cs" />
     <Compile Include="Main\RPG\RPGMain.cs" />
@@ -461,6 +462,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Main\sun\sun9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Main\unacceptable.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Main\ytho\0.jpg">
